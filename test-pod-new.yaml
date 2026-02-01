@@ -59,13 +59,15 @@ spec:
       pip install transformers scikit-learn pandas tqdm
       echo "TabFormer dependencies installed successfully!"
 
-      # Clone TabFormer repository
+      # Clone TabFormer repository (from your fork with updated code)
       echo "Cloning TabFormer repository..."
       cd /workspace
       if [ -d "TabFormer" ]; then
-        echo "TabFormer directory already exists, skipping clone"
+        echo "TabFormer directory already exists, pulling latest changes..."
+        cd TabFormer
+        git pull origin main
       else
-        git clone https://github.com/IBM/TabFormer.git
+        git clone https://github.com/tianxiao-commits/TabFormer.git TabFormer
         cd TabFormer
         echo "TabFormer cloned successfully!"
       fi

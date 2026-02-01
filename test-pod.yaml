@@ -70,6 +70,12 @@ spec:
         echo "TabFormer cloned successfully!"
       fi
 
+      # Generate synthetic dataset
+      echo "Generating synthetic credit card transaction dataset..."
+      cd /workspace/TabFormer
+      python generate_synthetic_data.py --nrows 50000 --nusers 500 --output ./data/credit_card/card_transaction.v1.csv
+      echo "Synthetic dataset generated successfully!"
+
       # Set wandb API key
       echo "Configuring wandb..."
       export WANDB_API_KEY=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
@@ -83,11 +89,34 @@ spec:
       echo "==================================="
       echo "TabFormer environment ready!"
       echo "GPU: 1x NVIDIA A100 (40GB)"
-      echo "Dataset location: /workspace/TabFormer/data/credit_card/"
+      echo "Dataset: 50,000 synthetic transactions generated"
       echo ""
-      echo "Example training command (DO NOT run automatically):"
-      echo "cd /workspace/TabFormer"
-      echo "python main.py --do_train --mlm --field_ce --lm_type bert --field_hs 64 --data_type card --nrows 100000 --num_train_epochs 3 --output_dir ./checkpoints/l40_model"
+      echo "Running inference benchmark..."
+      cd /workspace/TabFormer
+      python benchmark_inference.py \
+        --lm_type bert \
+        --field_ce \
+        --field_hs 64 \
+        --data_root ./data/credit_card/ \
+        --data_fname card_transaction.v1 \
+        --nrows 10000 \
+        --max_samples 1000 \
+        --batch_size 32 \
+        --output_file /workspace/benchmark_results.json
+
+      echo ""
+      echo "==================================="
+      echo "Benchmark complete! Results saved to /workspace/benchmark_results.json"
+      echo ""
+      echo "To view results:"
+      echo "  cat /workspace/benchmark_results.json"
+      echo ""
+      echo "To run training:"
+      echo "  cd /workspace/TabFormer"
+      echo "  python main.py --do_train --mlm --field_ce --lm_type bert --field_hs 64 --data_type card --nrows 50000 --num_train_epochs 3 --output_dir ./checkpoints/model"
+      echo ""
+      echo "To run custom benchmark:"
+      echo "  python benchmark_inference.py --lm_type bert --batch_size 64 --max_samples 2000"
       echo "==================================="
       echo "Keeping pod alive. Connect and run commands manually..."
       sleep infinity
