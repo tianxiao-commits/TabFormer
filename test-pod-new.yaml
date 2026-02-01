@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tabformer-a100-new-pod
+  namespace: rlvr
+  labels:
+    app: tabformer-training
+spec:
+  restartPolicy: Never
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: "cloud.google.com/gke-accelerator"
+                operator: "In"
+                values: ["nvidia-tesla-a100"]
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+  - key: systalyze.com/spot
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - name: pytorch
+    image: nvcr.io/nvidia/pytorch:24.08-py3
+    command: ["/bin/bash"]
+    args:
+    - "-c"
+    - |
+      set -e
+      echo "Installing tmux and wget..."
+      apt-get update && apt-get install -y tmux wget
+      echo "tmux installed successfully!"
+
+      # Install DCGM
+      echo "Installing DCGM..."
+      # Use ubuntu2204 repos which are compatible with ubuntu2404
+      distribution="ubuntu2204"
+      if ! wget https://developer.download.nvidia.com/compute/cuda/repos/$distribution/x86_64/cuda-keyring_1.1-1_all.deb; then
+        echo "WARNING: Failed to download CUDA keyring, skipping DCGM installation"
+      else
+        if dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update; then
+          if apt-get install -y datacenter-gpu-manager; then
+            echo "Starting nv-hostengine in daemon mode..."
+            nv-hostengine || echo "WARNING: Failed to start nv-hostengine"
+            sleep 3
+            echo "DCGM installed successfully"
+          else
+            echo "WARNING: Failed to install datacenter-gpu-manager"
+          fi
+        else
+          echo "WARNING: Failed to configure CUDA repos"
+        fi
+      fi
+
+      echo "Installing Python packages for TabFormer..."
+      pip install transformers scikit-learn pandas tqdm
+      echo "TabFormer dependencies installed successfully!"
+
+      # Clone TabFormer repository
+      echo "Cloning TabFormer repository..."
+      cd /workspace
+      if [ -d "TabFormer" ]; then
+        echo "TabFormer directory already exists, skipping clone"
+      else
+        git clone https://github.com/IBM/TabFormer.git
+        cd TabFormer
+        echo "TabFormer cloned successfully!"
+      fi
+
+      # Set wandb API key
+      echo "Configuring wandb..."
+      export WANDB_API_KEY=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
+      echo "export WANDB_API_KEY=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" >> ~/.bashrc
+      echo "wandb configured successfully!"
+
+      echo "Installing Claude Code..."
+      curl -fsSL https://claude.ai/install.sh | bash
+      echo "Claude Code installed successfully!"
+
+      echo "==================================="
+      echo "TabFormer environment ready (NEW - Latest Transformers)!"
+      echo "GPU: 1x NVIDIA A100 (40GB)"
+      echo "Dataset location: /workspace/TabFormer/data/credit_card/"
+      echo ""
+      echo "Example training command (DO NOT run automatically):"
+      echo "cd /workspace/TabFormer"
+      echo "python main.py --do_train --mlm --field_ce --lm_type bert --field_hs 64 --data_type card --nrows 100000 --num_train_epochs 3 --output_dir ./checkpoints/l40_model"
+      echo "==================================="
+      echo "Keeping pod alive. Connect and run commands manually..."
+      sleep infinity
+    resources:
+      limits:
+        nvidia.com/gpu: "1"
+      requests:
+        memory: "32Gi"
+        cpu: "8"
+        nvidia.com/gpu: "1"
+    env:
+    - name: HF_HOME
+      value: "/workspace/models"
+    volumeMounts:
+    - name: workspace
+      mountPath: /workspace
+    - name: dshm
+      mountPath: /dev/shm
+    - name: models-cache
+      mountPath: /workspace/models
+  volumes:
+  - name: workspace
+    emptyDir:
+      sizeLimit: 100Gi
+  - name: dshm
+    emptyDir:
+      medium: Memory
+      sizeLimit: 16Gi
+  - name: models-cache
+    emptyDir:
+      sizeLimit: 50Gi

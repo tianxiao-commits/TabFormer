@@ -1,4 +1,4 @@
-from transformers.tokenization_utils import PreTrainedTokenizer
+from transformers import PreTrainedTokenizer
 
 class TabFormerTokenizer(PreTrainedTokenizer):
     def __init__(

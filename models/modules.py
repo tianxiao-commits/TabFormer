@@ -1,6 +1,6 @@
 from misc.utils import ddict
 
-from transformers.modeling_utils import PreTrainedModel
+from transformers import PreTrainedModel
 from transformers import (
     BertTokenizer,
     BertForMaskedLM,
