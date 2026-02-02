@@ -152,16 +152,26 @@ class BenchmarkSweep:
 
         return {'input_ids': input_ids}
 
-    def benchmark_config(self, model_type, config_name, batch_size, seq_len):
-        """Benchmark a single configuration."""
+    def precompile_shapes(self, model, batch_sizes, seq_lens):
+        """Pre-compile all (batch_size, seq_len) shapes so AOT compilation
+        doesn't pollute benchmark measurements."""
+        shapes = [(bs, sl) for bs in batch_sizes for sl in seq_lens]
+        logger.info(f"Pre-compiling {len(shapes)} shapes...")
+        for i, (bs, sl) in enumerate(shapes):
+            logger.info(f"  Compiling shape {i+1}/{len(shapes)}: batch_size={bs}, seq_len={sl}")
+            dummy_batch = self.create_dummy_batch(bs, seq_len=sl)
+            with torch.no_grad():
+                _ = model.model(**dummy_batch)
+            torch.cuda.synchronize() if torch.cuda.is_available() else None
+        logger.info("Pre-compilation complete.")
+
+    def benchmark_config(self, model, model_type, config_name, batch_size, seq_len):
+        """Benchmark a single configuration using a pre-compiled model."""
         logger.info(f"\n{'='*60}")
         logger.info(f"Benchmarking: {model_type.upper()} | {config_name} | batch_size={batch_size} | seq_len={seq_len}")
         logger.info(f"{'='*60}")
 
-        # Create model
-        model, tokenizer = self.create_model(model_type, config_name)
-
-        # Warmup
+        # Warmup (model already compiled, this just warms caches)
         logger.info("Warming up...")
         dummy_batch = self.create_dummy_batch(batch_size, seq_len=seq_len)
         for _ in range(self.args.warmup_iterations):
@@ -226,10 +236,6 @@ class BenchmarkSweep:
 
         self.results.append(result)
 
-        # Cleanup
-        del model
-        torch.cuda.empty_cache() if torch.cuda.is_available() else None
-
     def run_sweep(self):
         """Run full benchmark sweep."""
         model_types = self.args.model_types.split(',')
@@ -248,14 +254,30 @@ class BenchmarkSweep:
 
         for model_type in model_types:
             for config_name in config_names:
-                for batch_size in batch_sizes:
-                    for seq_len in seq_lens:
-                        try:
-                            self.benchmark_config(model_type, config_name, batch_size, seq_len)
-                        except Exception as e:
-                            logger.error(f"Error benchmarking {model_type}/{config_name}/bs={batch_size}/seq={seq_len}: {e}")
-                            import traceback
-                            traceback.print_exc()
+                try:
+                    model, tokenizer = self.create_model(model_type, config_name)
+
+                    # Pre-compile all shapes before benchmarking
+                    if self.args.torch_compile:
+                        self.precompile_shapes(model, batch_sizes, seq_lens)
+
+                    for batch_size in batch_sizes:
+                        for seq_len in seq_lens:
+                            try:
+                                self.benchmark_config(model, model_type, config_name, batch_size, seq_len)
+                            except Exception as e:
+                                logger.error(f"Error benchmarking {model_type}/{config_name}/bs={batch_size}/seq={seq_len}: {e}")
+                                import traceback
+                                traceback.print_exc()
+
+                    # Cleanup after all shapes for this model
+                    del model
+                    torch.cuda.empty_cache() if torch.cuda.is_available() else None
+
+                except Exception as e:
+                    logger.error(f"Error creating model {model_type}/{config_name}: {e}")
+                    import traceback
+                    traceback.print_exc()
 
         # Save results
         self.save_results()
