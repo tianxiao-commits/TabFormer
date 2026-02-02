@@ -132,8 +132,8 @@ class BenchmarkSweep:
         model.model.eval()
 
         if self.args.torch_compile:
-            logger.info("Wrapping model with torch.compile")
-            model.model = torch.compile(model.model)
+            logger.info(f"Wrapping model with torch.compile (mode={self.args.torch_compile_mode}, fullgraph={self.args.torch_compile_fullgraph})")
+            model.model = torch.compile(model.model, mode=self.args.torch_compile_mode, fullgraph=self.args.torch_compile_fullgraph)
 
         # Count actual parameters
         total_params = sum(p.numel() for p in model.model.parameters())
@@ -335,6 +335,11 @@ def main():
                         help='Attention implementation (eager, sdpa, flash_attention_2)')
     parser.add_argument('--torch_compile', action='store_true',
                         help='Wrap model with torch.compile')
+    parser.add_argument('--torch_compile_mode', type=str, default='default',
+                        choices=['default', 'reduce-overhead', 'max-autotune'],
+                        help='torch.compile mode')
+    parser.add_argument('--torch_compile_fullgraph', action='store_true',
+                        help='Enable fullgraph=True for torch.compile')
 
     args = parser.parse_args()
 
