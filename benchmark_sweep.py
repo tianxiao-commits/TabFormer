@@ -157,13 +157,18 @@ class BenchmarkSweep:
         doesn't pollute benchmark measurements."""
         shapes = [(bs, sl) for bs in batch_sizes for sl in seq_lens]
         logger.info(f"Pre-compiling {len(shapes)} shapes...")
+        compile_start = time.time()
         for i, (bs, sl) in enumerate(shapes):
+            shape_start = time.time()
             logger.info(f"  Compiling shape {i+1}/{len(shapes)}: batch_size={bs}, seq_len={sl}")
             dummy_batch = self.create_dummy_batch(bs, seq_len=sl)
             with torch.no_grad():
                 _ = model.model(**dummy_batch)
             torch.cuda.synchronize() if torch.cuda.is_available() else None
-        logger.info("Pre-compilation complete.")
+            shape_time = time.time() - shape_start
+            logger.info(f"    Compiled in {shape_time:.1f}s")
+        total_compile_time = time.time() - compile_start
+        logger.info(f"Pre-compilation complete. Total compile time: {total_compile_time:.1f}s")
 
     def benchmark_config(self, model, model_type, config_name, batch_size, seq_len):
         """Benchmark a single configuration using a pre-compiled model."""
