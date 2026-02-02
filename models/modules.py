@@ -28,6 +28,8 @@ class TabFormerBaseModel(PreTrainedModel):
 
 class TabFormerHierarchicalLM(PreTrainedModel):
     base_model_prefix = "bert"
+    _supports_flash_attn_2 = True
+    _supports_sdpa = True
 
     def __init__(self, config, vocab):
         super().__init__(config)
