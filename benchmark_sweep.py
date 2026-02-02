@@ -128,10 +128,10 @@ class BenchmarkSweep:
 
         return {'input_ids': input_ids}
 
-    def benchmark_config(self, model_type, config_name, batch_size):
+    def benchmark_config(self, model_type, config_name, batch_size, seq_len):
         """Benchmark a single configuration."""
         logger.info(f"\n{'='*60}")
-        logger.info(f"Benchmarking: {model_type.upper()} | {config_name} | batch_size={batch_size}")
+        logger.info(f"Benchmarking: {model_type.upper()} | {config_name} | batch_size={batch_size} | seq_len={seq_len}")
         logger.info(f"{'='*60}")
 
         # Create model
@@ -139,7 +139,7 @@ class BenchmarkSweep:
 
         # Warmup
         logger.info("Warming up...")
-        dummy_batch = self.create_dummy_batch(batch_size)
+        dummy_batch = self.create_dummy_batch(batch_size, seq_len=seq_len)
         for _ in range(self.args.warmup_iterations):
             with torch.no_grad():
                 _ = model.model(**dummy_batch)
@@ -151,7 +151,7 @@ class BenchmarkSweep:
         latencies = []
 
         for i in range(self.args.num_iterations):
-            dummy_batch = self.create_dummy_batch(batch_size)
+            dummy_batch = self.create_dummy_batch(batch_size, seq_len=seq_len)
 
             torch.cuda.synchronize() if torch.cuda.is_available() else None
             start = time.time()
@@ -181,6 +181,7 @@ class BenchmarkSweep:
             'model_type': model_type,
             'config_name': config_name,
             'batch_size': batch_size,
+            'seq_len': seq_len,
             'avg_latency_ms': round(avg_latency, 2),
             'min_latency_ms': round(min_latency, 2),
             'max_latency_ms': round(max_latency, 2),
@@ -208,22 +209,25 @@ class BenchmarkSweep:
         model_types = self.args.model_types.split(',')
         config_names = self.args.config_names.split(',')
         batch_sizes = [int(b) for b in self.args.batch_sizes.split(',')]
+        seq_lens = [int(s) for s in self.args.seq_lens.split(',')]
 
         logger.info(f"Starting benchmark sweep:")
         logger.info(f"  Model types: {model_types}")
         logger.info(f"  Configs: {config_names}")
         logger.info(f"  Batch sizes: {batch_sizes}")
+        logger.info(f"  Sequence lengths: {seq_lens}")
         logger.info(f"  Iterations per config: {self.args.num_iterations}")
 
         for model_type in model_types:
             for config_name in config_names:
                 for batch_size in batch_sizes:
-                    try:
-                        self.benchmark_config(model_type, config_name, batch_size)
-                    except Exception as e:
-                        logger.error(f"Error benchmarking {model_type}/{config_name}/bs={batch_size}: {e}")
-                        import traceback
-                        traceback.print_exc()
+                    for seq_len in seq_lens:
+                        try:
+                            self.benchmark_config(model_type, config_name, batch_size, seq_len)
+                        except Exception as e:
+                            logger.error(f"Error benchmarking {model_type}/{config_name}/bs={batch_size}/seq={seq_len}: {e}")
+                            import traceback
+                            traceback.print_exc()
 
         # Save results
         self.save_results()
@@ -238,16 +242,16 @@ class BenchmarkSweep:
 
     def print_summary(self):
         """Print summary table of results."""
-        logger.info(f"\n{'='*80}")
+        logger.info(f"\n{'='*90}")
         logger.info("BENCHMARK SUMMARY")
-        logger.info(f"{'='*80}")
-        logger.info(f"{'Model':<8} {'Config':<8} {'BS':<4} {'Avg(ms)':<10} {'P99(ms)':<10} {'Throughput':<15}")
-        logger.info(f"{'-'*80}")
+        logger.info(f"{'='*90}")
+        logger.info(f"{'Model':<8} {'Config':<8} {'BS':<4} {'SeqLen':<7} {'Avg(ms)':<10} {'P99(ms)':<10} {'Throughput':<15}")
+        logger.info(f"{'-'*90}")
 
         for r in self.results:
             logger.info(
                 f"{r['model_type']:<8} {r['config_name']:<8} {r['batch_size']:<4} "
-                f"{r['avg_latency_ms']:<10.2f} {r['p99_latency_ms']:<10.2f} "
+                f"{r['seq_len']:<7} {r['avg_latency_ms']:<10.2f} {r['p99_latency_ms']:<10.2f} "
                 f"{r['throughput_samples_per_sec']:<15.2f}"
             )
 
@@ -260,6 +264,8 @@ def main():
                         help='Comma-separated config names (120M,20M)')
     parser.add_argument('--batch_sizes', type=str, default='1,4,16,32',
                         help='Comma-separated batch sizes')
+    parser.add_argument('--seq_lens', type=str, default='10,50,100',
+                        help='Comma-separated sequence lengths')
     parser.add_argument('--num_iterations', type=int, default=100,
                         help='Number of iterations per config')
     parser.add_argument('--warmup_iterations', type=int, default=10,
