@@ -268,7 +268,7 @@ class BenchmarkSweep:
                     model, tokenizer = self.create_model(model_type, config_name)
 
                     # Pre-compile all shapes before benchmarking
-                    if self.args.torch_compile:
+                    if self.args.torch_compile and not self.args.no_precompile:
                         self.precompile_shapes(model, batch_sizes, seq_lens)
 
                     for batch_size in batch_sizes:
@@ -347,6 +347,8 @@ def main():
                         help='Enable fullgraph=True for torch.compile')
     parser.add_argument('--native_bert', action='store_true',
                         help='Use native PyTorch BERT (fullgraph-compatible) instead of HF transformers BERT')
+    parser.add_argument('--no_precompile', action='store_true',
+                        help='Skip pre-compilation of shapes (useful for profiling)')
 
     args = parser.parse_args()
 
