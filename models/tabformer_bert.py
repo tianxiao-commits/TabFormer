@@ -116,7 +116,8 @@ class TabFormerBertForMaskedLM(BertForMaskedLM):
             output_sz = list(sequence_output.size())
             expected_sz = [output_sz[0], output_sz[1]*self.config.ncols, -1]
             sequence_output = sequence_output.view(expected_sz)
-            masked_lm_labels = masked_lm_labels.view(expected_sz[0], -1)
+            if masked_lm_labels is not None:
+                masked_lm_labels = masked_lm_labels.view(expected_sz[0], -1)
 
         prediction_scores = self.cls(sequence_output) # [bsz * seqlen * vocab_sz]
 
@@ -125,30 +126,33 @@ class TabFormerBertForMaskedLM(BertForMaskedLM):
         # prediction_scores : [bsz x seqlen x vsz]
         # masked_lm_labels  : [bsz x seqlen]
 
-        total_masked_lm_loss = 0
+        if masked_lm_labels is not None:
+            total_masked_lm_loss = 0
 
-        seq_len = prediction_scores.size(1)
-        # TODO : remove_target is True for card
-        field_names = self.vocab.get_field_keys(remove_target=True, ignore_special=False)
-        for field_idx, field_name in enumerate(field_names):
-            col_ids = list(range(field_idx, seq_len, len(field_names)))
+            seq_len = prediction_scores.size(1)
+            # TODO : remove_target is True for card
+            field_names = self.vocab.get_field_keys(remove_target=True, ignore_special=False)
+            for field_idx, field_name in enumerate(field_names):
+                col_ids = list(range(field_idx, seq_len, len(field_names)))
 
-            global_ids_field = self.vocab.get_field_ids(field_name)
+                global_ids_field = self.vocab.get_field_ids(field_name)
 
-            prediction_scores_field = prediction_scores[:, col_ids, :][:, :, global_ids_field]  # bsz * 10 * K
-            masked_lm_labels_field = masked_lm_labels[:, col_ids]
-            masked_lm_labels_field_local = self.vocab.get_from_global_ids(global_ids=masked_lm_labels_field,
-                                                                          what_to_get='local_ids')
+                prediction_scores_field = prediction_scores[:, col_ids, :][:, :, global_ids_field]  # bsz * 10 * K
+                masked_lm_labels_field = masked_lm_labels[:, col_ids]
+                masked_lm_labels_field_local = self.vocab.get_from_global_ids(global_ids=masked_lm_labels_field,
+                                                                              what_to_get='local_ids')
 
-            nfeas = len(global_ids_field)
-            loss_fct = self.get_criterion(field_name, nfeas, prediction_scores.device)
+                nfeas = len(global_ids_field)
+                loss_fct = self.get_criterion(field_name, nfeas, prediction_scores.device)
 
-            masked_lm_loss_field = loss_fct(prediction_scores_field.view(-1, len(global_ids_field)),
-                                            masked_lm_labels_field_local.view(-1))
+                masked_lm_loss_field = loss_fct(prediction_scores_field.view(-1, len(global_ids_field)),
+                                                masked_lm_labels_field_local.view(-1))
 
-            total_masked_lm_loss += masked_lm_loss_field
+                total_masked_lm_loss += masked_lm_loss_field
 
-        return (total_masked_lm_loss,) + outputs
+            return (total_masked_lm_loss,) + outputs
+
+        return outputs
 
     def get_criterion(self, fname, vs, device, cutoffs=False, div_value=4.0):
 

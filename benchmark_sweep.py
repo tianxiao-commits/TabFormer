@@ -33,14 +33,30 @@ class BenchmarkSweep:
     def create_dummy_vocab(self, vocab_size=30522):
         """Create a dummy vocabulary for benchmarking."""
         from misc.utils import ddict
+        import tempfile
 
-        vocab = ddict()
+        class DummyVocab(ddict):
+            def __len__(self):
+                return self.vocab_size
+
+        vocab = DummyVocab()
         vocab.vocab_size = vocab_size
         vocab.pad_token = '[PAD]'
         vocab.mask_token = '[MASK]'
         vocab.unk_token = '[UNK]'
         vocab.bos_token = '[CLS]'
         vocab.eos_token = '[SEP]'
+
+        # Create a temporary vocab file for BertTokenizer
+        vocab_file = os.path.join(tempfile.gettempdir(), 'benchmark_vocab.txt')
+        if not os.path.exists(vocab_file):
+            special = ['[PAD]', '[UNK]', '[CLS]', '[SEP]', '[MASK]']
+            with open(vocab_file, 'w') as f:
+                for token in special:
+                    f.write(token + '\n')
+                for i in range(vocab_size - len(special)):
+                    f.write(f'token_{i}\n')
+        vocab.filename = vocab_file
 
         # Add dummy field structure for TabFormer
         vocab.field_keys = ['field_' + str(i) for i in range(12)]
@@ -50,13 +66,13 @@ class BenchmarkSweep:
         vocab.get_field_keys = lambda remove_target=False, ignore_special=False: vocab.field_keys
         vocab.get_field_ids = lambda field_name: list(range(100))
         vocab.get_from_global_ids = lambda global_ids, what_to_get: global_ids
-        vocab.get_special_tokens = lambda: ddict(
-            pad_token='[PAD]',
-            mask_token='[MASK]',
-            unk_token='[UNK]',
-            bos_token='[CLS]',
-            eos_token='[SEP]'
-        )
+        vocab.get_special_tokens = lambda: {
+            'pad_token': '[PAD]',
+            'mask_token': '[MASK]',
+            'unk_token': '[UNK]',
+            'bos_token': '[CLS]',
+            'eos_token': '[SEP]'
+        }
 
         return vocab
 
@@ -84,9 +100,9 @@ class BenchmarkSweep:
             model.config.intermediate_size = config['intermediate_size']
             model.config.num_attention_heads = config['num_attention_heads']
 
-            # Reinitialize model with new config
-            from models.tabformer_bert import TabFormerBertForMaskedLM
-            model.model = TabFormerBertForMaskedLM(model.config, vocab)
+            # Reinitialize model with new config (hierarchical wrapper handles 3D input)
+            from models.modules import TabFormerHierarchicalLM
+            model.model = TabFormerHierarchicalLM(model.config, vocab)
             tokenizer = model.tokenizer
 
         else:  # gpt2
@@ -102,9 +118,9 @@ class BenchmarkSweep:
             from models.tabformer_gpt2 import TabFormerGPT2LMHeadModel
             model_gpt = TabFormerGPT2LMHeadModel(gpt_config, vocab)
             tokenizer = TabFormerTokenizer(
-                unk_token=special_tokens.unk_token,
-                bos_token=special_tokens.bos_token,
-                eos_token=special_tokens.eos_token
+                unk_token=special_tokens['unk_token'],
+                bos_token=special_tokens['bos_token'],
+                eos_token=special_tokens['eos_token']
             )
             model = type('obj', (object,), {'model': model_gpt, 'tokenizer': tokenizer})()
 
