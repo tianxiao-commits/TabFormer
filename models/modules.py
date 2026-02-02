@@ -3,14 +3,13 @@ from misc.utils import ddict
 from transformers import PreTrainedModel
 from transformers import (
     BertTokenizer,
-    BertForMaskedLM,
     GPT2Config,
     GPT2LMHeadModel
 )
 
 from models.tabformer_tokenizer import TabFormerTokenizer
 from models.hierarchical import TabFormerEmbeddings
-from models.tabformer_bert import TabFormerBertForMaskedLM, TabFormerBertConfig
+from models.tabformer_bert import TabFormerBertForMaskedLM, TabFormerBertModel, TabFormerBertConfig
 from models.tabformer_gpt2 import TabFormerGPT2LMHeadModel
 
 
@@ -68,7 +67,7 @@ class TabFormerBertLM:
 
         if flatten and not field_ce:
             # flattened vanilla BERT
-            model = BertForMaskedLM(self.config)
+            model = TabFormerBertModel(self.config)
         elif flatten and field_ce:
             # flattened field CE BERT
             model = TabFormerBertForMaskedLM(self.config, self.vocab)

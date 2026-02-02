@@ -2,15 +2,12 @@ import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss
 
-from transformers.models.bert.modeling_bert import ACT2FN, BertForMaskedLM
+from transformers.models.bert.modeling_bert import ACT2FN
 from transformers.models.bert.configuration_bert import BertConfig
 from models.custom_criterion import CustomAdaptiveLogSoftmax
+from models.bert_native import NativeBertModel
 
-# BertLayerNorm was renamed to LayerNorm in newer transformers
-try:
-    from transformers.models.bert.modeling_bert import BertLayerNorm
-except ImportError:
-    from torch.nn import LayerNorm as BertLayerNorm
+BertLayerNorm = nn.LayerNorm
 
 
 class TabFormerBertConfig(BertConfig):
@@ -78,13 +75,14 @@ class TabFormerBertOnlyMLMHead(nn.Module):
         prediction_scores = self.predictions(sequence_output)
         return prediction_scores
 
-class TabFormerBertForMaskedLM(BertForMaskedLM):
+class TabFormerBertForMaskedLM(nn.Module):
     def __init__(self, config, vocab):
-        super().__init__(config)
+        super().__init__()
 
+        self.config = config
         self.vocab = vocab
+        self.bert = NativeBertModel(config)
         self.cls = TabFormerBertOnlyMLMHead(config)
-        self.init_weights()
 
     def forward(
             self,
@@ -166,12 +164,13 @@ class TabFormerBertForMaskedLM(BertForMaskedLM):
         else:
             return CrossEntropyLoss()
 
-class TabFormerBertModel(BertForMaskedLM):
+class TabFormerBertModel(nn.Module):
     def __init__(self, config):
-        super().__init__(config)
+        super().__init__()
 
+        self.config = config
+        self.bert = NativeBertModel(config)
         self.cls = TabFormerBertOnlyMLMHead(config)
-        self.init_weights()
 
     def forward(
             self,
