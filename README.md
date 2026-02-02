@@ -65,6 +65,60 @@ Description of some options (more can be found in _`args.py`_):
 * `--user_ids` option to pick only transacations from particular user ids.
 ---
 
+### Benchmark Sweep
+
+`benchmark_sweep.py` measures inference latency and throughput across model types, configs, batch sizes, and sequence lengths.
+
+#### Basic usage
+
+```bash
+python benchmark_sweep.py \
+  --model_types bert --config_names 20M \
+  --batch_sizes 4 --seq_lens 10 \
+  --num_iterations 100 --warmup_iterations 10
+```
+
+#### SDPA attention
+
+Use `--attn_impl sdpa` to enable PyTorch's scaled dot-product attention, which automatically selects the best available kernel (FlashAttention, memory-efficient, or math):
+
+```bash
+python benchmark_sweep.py \
+  --model_types bert --config_names 20M \
+  --batch_sizes 4 --seq_lens 10 \
+  --attn_impl sdpa
+```
+
+#### torch.compile
+
+Add `--torch_compile` to wrap the model with `torch.compile`, which traces and optimizes the computation graph. The first few warmup iterations will be slower due to compilation, but subsequent iterations benefit from fused kernels and reduced overhead:
+
+```bash
+python benchmark_sweep.py \
+  --model_types bert --config_names 20M \
+  --batch_sizes 4 --seq_lens 10 \
+  --attn_impl sdpa --torch_compile
+```
+
+`--torch_compile` works best with `--attn_impl sdpa` or `--attn_impl eager`. Flash Attention 2 uses a third-party CUDA kernel that causes graph breaks during compilation, limiting the benefit.
+
+#### Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--model_types` | Comma-separated model types (`bert`, `gpt2`) | `bert,gpt2` |
+| `--config_names` | Comma-separated configs (`120M`, `20M`) | `120M,20M` |
+| `--batch_sizes` | Comma-separated batch sizes | `1,4,16,32` |
+| `--seq_lens` | Comma-separated sequence lengths | `10,50,100` |
+| `--num_iterations` | Benchmark iterations per config | `100` |
+| `--warmup_iterations` | Warmup iterations (not measured) | `10` |
+| `--attn_impl` | Attention implementation (`eager`, `sdpa`, `flash_attention_2`) | `eager` |
+| `--torch_compile` | Wrap model with `torch.compile` | off |
+| `--flatten` | Use flattened input (for GPT2) | off |
+| `--output_file` | JSON output path | `benchmark_sweep_results.json` |
+
+---
+
 ### Citation
 
 ```
