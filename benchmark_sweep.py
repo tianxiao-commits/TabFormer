@@ -131,6 +131,10 @@ class BenchmarkSweep:
             model.model = model.model.to(torch.float16)
         model.model.eval()
 
+        if self.args.torch_compile:
+            logger.info("Wrapping model with torch.compile")
+            model.model = torch.compile(model.model)
+
         # Count actual parameters
         total_params = sum(p.numel() for p in model.model.parameters())
         logger.info(f"Actual model parameters: {total_params / 1e6:.1f}M")
@@ -209,6 +213,7 @@ class BenchmarkSweep:
             'p50_latency_ms': round(p50_latency, 2),
             'p99_latency_ms': round(p99_latency, 2),
             'throughput_samples_per_sec': round(throughput, 2),
+            'torch_compile': self.args.torch_compile,
             'device': str(self.device),
             'timestamp': datetime.now().isoformat()
         }
@@ -238,6 +243,7 @@ class BenchmarkSweep:
         logger.info(f"  Batch sizes: {batch_sizes}")
         logger.info(f"  Sequence lengths: {seq_lens}")
         logger.info(f"  Attention impl: {self.args.attn_impl}")
+        logger.info(f"  torch.compile: {self.args.torch_compile}")
         logger.info(f"  Iterations per config: {self.args.num_iterations}")
 
         for model_type in model_types:
@@ -264,15 +270,16 @@ class BenchmarkSweep:
 
     def print_summary(self):
         """Print summary table of results."""
-        logger.info(f"\n{'='*100}")
+        logger.info(f"\n{'='*110}")
         logger.info("BENCHMARK SUMMARY")
-        logger.info(f"{'='*100}")
-        logger.info(f"{'Model':<8} {'Config':<8} {'Attn':<18} {'BS':<4} {'SeqLen':<7} {'Avg(ms)':<10} {'P99(ms)':<10} {'Throughput':<15}")
-        logger.info(f"{'-'*100}")
+        logger.info(f"{'='*110}")
+        logger.info(f"{'Model':<8} {'Config':<8} {'Attn':<18} {'Compile':<9} {'BS':<4} {'SeqLen':<7} {'Avg(ms)':<10} {'P99(ms)':<10} {'Throughput':<15}")
+        logger.info(f"{'-'*110}")
 
         for r in self.results:
+            compile_str = 'yes' if r['torch_compile'] else 'no'
             logger.info(
-                f"{r['model_type']:<8} {r['config_name']:<8} {r['attn_impl']:<18} {r['batch_size']:<4} "
+                f"{r['model_type']:<8} {r['config_name']:<8} {r['attn_impl']:<18} {compile_str:<9} {r['batch_size']:<4} "
                 f"{r['seq_len']:<7} {r['avg_latency_ms']:<10.2f} {r['p99_latency_ms']:<10.2f} "
                 f"{r['throughput_samples_per_sec']:<15.2f}"
             )
@@ -299,6 +306,8 @@ def main():
     parser.add_argument('--attn_impl', type=str, default='eager',
                         choices=['eager', 'sdpa', 'flash_attention_2'],
                         help='Attention implementation (eager, sdpa, flash_attention_2)')
+    parser.add_argument('--torch_compile', action='store_true',
+                        help='Wrap model with torch.compile')
 
     args = parser.parse_args()
 
