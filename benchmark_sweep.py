@@ -99,7 +99,9 @@ class BenchmarkSweep:
             model.config.hidden_size = config['hidden_size']
             model.config.intermediate_size = config['intermediate_size']
             model.config.num_attention_heads = config['num_attention_heads']
-            model.config._attn_implementation = self.args.attn_impl
+            model.config.native_bert = self.args.native_bert
+            if not self.args.native_bert:
+                model.config._attn_implementation = self.args.attn_impl
 
             # Reinitialize model with new config (hierarchical wrapper handles 3D input)
             from models.modules import TabFormerHierarchicalLM
@@ -127,7 +129,7 @@ class BenchmarkSweep:
             model = type('obj', (object,), {'model': model_gpt, 'tokenizer': tokenizer})()
 
         model.model = model.model.to(self.device)
-        if self.args.attn_impl in ('flash_attention_2', 'sdpa'):
+        if (model_type == 'bert' and self.args.native_bert) or self.args.attn_impl in ('flash_attention_2', 'sdpa'):
             model.model = model.model.to(torch.float16)
         model.model.eval()
 
@@ -219,7 +221,7 @@ class BenchmarkSweep:
         result = {
             'model_type': model_type,
             'config_name': config_name,
-            'attn_impl': self.args.attn_impl,
+            'attn_impl': 'sdpa (native)' if (model_type == 'bert' and self.args.native_bert) else self.args.attn_impl,
             'batch_size': batch_size,
             'seq_len': seq_len,
             'avg_latency_ms': round(avg_latency, 2),
@@ -229,6 +231,9 @@ class BenchmarkSweep:
             'p99_latency_ms': round(p99_latency, 2),
             'throughput_samples_per_sec': round(throughput, 2),
             'torch_compile': self.args.torch_compile,
+            'torch_compile_fullgraph': self.args.torch_compile_fullgraph,
+            'torch_compile_mode': self.args.torch_compile_mode,
+            'native_bert': self.args.native_bert if model_type == 'bert' else None,
             'device': str(self.device),
             'timestamp': datetime.now().isoformat()
         }
@@ -340,6 +345,8 @@ def main():
                         help='torch.compile mode')
     parser.add_argument('--torch_compile_fullgraph', action='store_true',
                         help='Enable fullgraph=True for torch.compile')
+    parser.add_argument('--native_bert', action='store_true',
+                        help='Use native PyTorch BERT (fullgraph-compatible) instead of HF transformers BERT')
 
     args = parser.parse_args()
 

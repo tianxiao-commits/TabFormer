@@ -2,12 +2,19 @@ import torch
 from torch import nn
 from torch.nn import CrossEntropyLoss
 
-from transformers.models.bert.modeling_bert import ACT2FN
+from transformers.models.bert.modeling_bert import ACT2FN, BertModel
 from transformers.models.bert.configuration_bert import BertConfig
 from models.custom_criterion import CustomAdaptiveLogSoftmax
 from models.bert_native import NativeBertModel
 
 BertLayerNorm = nn.LayerNorm
+
+
+def _create_bert(config):
+    """Create either NativeBertModel or HF BertModel based on config.native_bert."""
+    if getattr(config, 'native_bert', True):
+        return NativeBertModel(config)
+    return BertModel(config)
 
 
 class TabFormerBertConfig(BertConfig):
@@ -20,6 +27,7 @@ class TabFormerBertConfig(BertConfig):
         hidden_size=768,
         num_attention_heads=12,
         pad_token_id=0,
+        native_bert=True,
         **kwargs
     ):
         super().__init__(pad_token_id=pad_token_id, **kwargs)
@@ -29,7 +37,8 @@ class TabFormerBertConfig(BertConfig):
         self.hidden_size = hidden_size
         self.flatten = flatten
         self.vocab_size = vocab_size
-        self.num_attention_heads=num_attention_heads
+        self.num_attention_heads = num_attention_heads
+        self.native_bert = native_bert
 
 class TabFormerBertPredictionHeadTransform(nn.Module):
     def __init__(self, config):
@@ -81,7 +90,7 @@ class TabFormerBertForMaskedLM(nn.Module):
 
         self.config = config
         self.vocab = vocab
-        self.bert = NativeBertModel(config)
+        self.bert = _create_bert(config)
         self.cls = TabFormerBertOnlyMLMHead(config)
 
     def forward(
@@ -169,7 +178,7 @@ class TabFormerBertModel(nn.Module):
         super().__init__()
 
         self.config = config
-        self.bert = NativeBertModel(config)
+        self.bert = _create_bert(config)
         self.cls = TabFormerBertOnlyMLMHead(config)
 
     def forward(
