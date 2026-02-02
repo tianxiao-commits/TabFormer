@@ -99,6 +99,7 @@ class BenchmarkSweep:
             model.config.hidden_size = config['hidden_size']
             model.config.intermediate_size = config['intermediate_size']
             model.config.num_attention_heads = config['num_attention_heads']
+            model.config._attn_implementation = self.args.attn_impl
 
             # Reinitialize model with new config (hierarchical wrapper handles 3D input)
             from models.modules import TabFormerHierarchicalLM
@@ -112,7 +113,8 @@ class BenchmarkSweep:
                 n_embd=config['hidden_size'],
                 n_layer=config['num_hidden_layers'],
                 n_head=config['num_attention_heads'],
-                n_inner=config['intermediate_size']
+                n_inner=config['intermediate_size'],
+                attn_implementation=self.args.attn_impl
             )
 
             from models.tabformer_gpt2 import TabFormerGPT2LMHeadModel
@@ -125,6 +127,8 @@ class BenchmarkSweep:
             model = type('obj', (object,), {'model': model_gpt, 'tokenizer': tokenizer})()
 
         model.model = model.model.to(self.device)
+        if self.args.attn_impl in ('flash_attention_2', 'sdpa'):
+            model.model = model.model.to(torch.float16)
         model.model.eval()
 
         # Count actual parameters
@@ -196,6 +200,7 @@ class BenchmarkSweep:
         result = {
             'model_type': model_type,
             'config_name': config_name,
+            'attn_impl': self.args.attn_impl,
             'batch_size': batch_size,
             'seq_len': seq_len,
             'avg_latency_ms': round(avg_latency, 2),
@@ -232,6 +237,7 @@ class BenchmarkSweep:
         logger.info(f"  Configs: {config_names}")
         logger.info(f"  Batch sizes: {batch_sizes}")
         logger.info(f"  Sequence lengths: {seq_lens}")
+        logger.info(f"  Attention impl: {self.args.attn_impl}")
         logger.info(f"  Iterations per config: {self.args.num_iterations}")
 
         for model_type in model_types:
@@ -258,15 +264,15 @@ class BenchmarkSweep:
 
     def print_summary(self):
         """Print summary table of results."""
-        logger.info(f"\n{'='*90}")
+        logger.info(f"\n{'='*100}")
         logger.info("BENCHMARK SUMMARY")
-        logger.info(f"{'='*90}")
-        logger.info(f"{'Model':<8} {'Config':<8} {'BS':<4} {'SeqLen':<7} {'Avg(ms)':<10} {'P99(ms)':<10} {'Throughput':<15}")
-        logger.info(f"{'-'*90}")
+        logger.info(f"{'='*100}")
+        logger.info(f"{'Model':<8} {'Config':<8} {'Attn':<18} {'BS':<4} {'SeqLen':<7} {'Avg(ms)':<10} {'P99(ms)':<10} {'Throughput':<15}")
+        logger.info(f"{'-'*100}")
 
         for r in self.results:
             logger.info(
-                f"{r['model_type']:<8} {r['config_name']:<8} {r['batch_size']:<4} "
+                f"{r['model_type']:<8} {r['config_name']:<8} {r['attn_impl']:<18} {r['batch_size']:<4} "
                 f"{r['seq_len']:<7} {r['avg_latency_ms']:<10.2f} {r['p99_latency_ms']:<10.2f} "
                 f"{r['throughput_samples_per_sec']:<15.2f}"
             )
@@ -290,6 +296,9 @@ def main():
                         help='Use flattened input (for GPT2)')
     parser.add_argument('--output_file', type=str, default='benchmark_sweep_results.json',
                         help='Output file for results')
+    parser.add_argument('--attn_impl', type=str, default='eager',
+                        choices=['eager', 'sdpa', 'flash_attention_2'],
+                        help='Attention implementation (eager, sdpa, flash_attention_2)')
 
     args = parser.parse_args()
 
