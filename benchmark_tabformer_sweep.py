@@ -90,7 +90,7 @@ def get_model_configs():
     configs = {
         '20M': TabFormerConfig(
             name='20M',
-            field_hidden_size=384 // 14,  # 384 / 14 fields ≈ 27
+            field_hidden_size=384,  # Same as hidden_size, divisible by field_nhead (12)
             field_num_layers=4,
             field_nhead=12,
             field_ffn_size=768,
@@ -102,7 +102,7 @@ def get_model_configs():
         ),
         '120M': TabFormerConfig(
             name='120M',
-            field_hidden_size=768 // 14,  # 768 / 14 ≈ 54
+            field_hidden_size=768,  # Same as hidden_size, divisible by field_nhead (12)
             field_num_layers=6,
             field_nhead=12,
             field_ffn_size=2048,
@@ -114,7 +114,7 @@ def get_model_configs():
         ),
         '720M': TabFormerConfig(
             name='720M',
-            field_hidden_size=1536 // 14,  # 1536 / 14 ≈ 109
+            field_hidden_size=1536,  # Same as hidden_size, divisible by field_nhead (24)
             field_num_layers=6,
             field_nhead=24,
             field_ffn_size=4096,
