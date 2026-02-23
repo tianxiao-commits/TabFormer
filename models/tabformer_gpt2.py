@@ -1,12 +1,32 @@
+import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
 from transformers.models.gpt2.modeling_gpt2 import GPT2LMHeadModel
+from .gpt_native import NativeGPTLMHeadModel
 
 
 class TabFormerGPT2LMHeadModel(GPT2LMHeadModel):
-    def __init__(self, config, vocab):
-        super().__init__(config)
+    def __init__(self, config, vocab, native_gpt=False):
+        """
+        Args:
+            config: Model configuration
+            vocab: Vocabulary object
+            native_gpt: If True, use native PyTorch GPT with RoPE and RMSNorm.
+                       If False, use HuggingFace GPT2 (default for backward compatibility)
+        """
+        self.native_gpt = native_gpt
         self.vocab = vocab
+
+        if native_gpt:
+            # Use native PyTorch GPT implementation (torch.compile friendly)
+            # Skip parent __init__ to avoid HuggingFace model initialization
+            nn.Module.__init__(self)
+            self.config = config
+            self.transformer = NativeGPTLMHeadModel(config)
+        else:
+            # Use HuggingFace GPT2 implementation
+            super().__init__(config)
+            self.vocab = vocab
 
     def forward(
             self,
@@ -20,18 +40,31 @@ class TabFormerGPT2LMHeadModel(GPT2LMHeadModel):
             labels=None,
             use_cache=True,
     ):
-        transformer_outputs = self.transformer(
-            input_ids,
-            past=past,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            position_ids=position_ids,
-            head_mask=head_mask,
-            inputs_embeds=inputs_embeds,
-            use_cache=use_cache,
-        )
-        hidden_states = transformer_outputs[0]
-        lm_logits = self.lm_head(hidden_states)
+        if self.native_gpt:
+            # Native GPT forward pass
+            outputs = self.transformer(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                inputs_embeds=inputs_embeds,
+                labels=labels,
+            )
+            lm_logits = outputs['logits']
+            hidden_states = outputs['hidden_states']
+            transformer_outputs = (hidden_states,)
+        else:
+            # HuggingFace GPT2 forward pass
+            transformer_outputs = self.transformer(
+                input_ids,
+                past=past,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids,
+                position_ids=position_ids,
+                head_mask=head_mask,
+                inputs_embeds=inputs_embeds,
+                use_cache=use_cache,
+            )
+            hidden_states = transformer_outputs[0]
+            lm_logits = self.lm_head(hidden_states)
 
         # lm_logits : [bsz x seq_len x vsz]
         # labels    : [bsz x seq_len]

@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tabformer-benchmark-a100
+  namespace: rlvr
+  labels:
+    app: tabformer-benchmark
+spec:
+  restartPolicy: Never
+  nodeSelector:
+    cloud.google.com/gke-accelerator: nvidia-tesla-a100
+  tolerations:
+  - key: cloud.google.com/gke-spot
+    operator: Exists
+    effect: NoSchedule
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+  - key: systalyze.com/spot
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - name: pytorch
+    image: nvcr.io/nvidia/pytorch:24.08-py3
+    securityContext:
+      privileged: true
+    command: ["/bin/bash"]
+    args:
+    - "-c"
+    - |
+      set -e
+      echo "=========================================="
+      echo "TabFormer Benchmark on A100"
+      echo "=========================================="
+
+      echo "Installing dependencies..."
+      apt-get update && apt-get install -y tmux wget git
+      pip install transformers scikit-learn pandas tqdm
+
+      # Clone TabFormer repository
+      echo "Cloning TabFormer repository..."
+      cd /workspace
+      if [ -d "TabFormer" ]; then
+        echo "TabFormer directory exists, pulling latest..."
+        cd TabFormer
+        git pull origin main
+      else
+        git clone https://github.com/tianxiao-commits/TabFormer.git TabFormer
+        cd TabFormer
+      fi
+
+      echo "=========================================="
+      echo "Starting TabFormer Benchmark Sweep"
+      echo "=========================================="
+      echo "GPU: NVIDIA A100"
+      echo "Configs: 20M, 120M, 720M"
+      echo "Sequence lengths: 32, 64, 128, 256, 512, 1024"
+      echo "Batch sizes: 1, 2, 4, 8, 16, 32"
+      echo "Warmup iterations: 100"
+      echo "Benchmark iterations: 100"
+      echo "SLA targets: 5ms, 10ms, 15ms"
+      echo "=========================================="
+
+      # Run benchmark sweep
+      python benchmark_tabformer_sweep.py \
+        --configs 20M 120M 720M \
+        --seq-lengths 32 64 128 256 512 1024 \
+        --batch-sizes 1 2 4 8 16 32 \
+        --sla-targets 5.0 10.0 15.0 \
+        --output /workspace/tabformer_sweep_results_a100.json
+
+      echo "=========================================="
+      echo "Benchmark Complete!"
+      echo "Results saved to: /workspace/tabformer_sweep_results_a100.json"
+      echo "=========================================="
+
+      # Keep pod alive for result inspection
+      echo "Keeping pod alive for result inspection..."
+      echo "To copy results: kubectl cp rlvr/tabformer-benchmark-a100:/workspace/tabformer_sweep_results_a100.json ./results.json"
+      sleep infinity
+
+    resources:
+      limits:
+        nvidia.com/gpu: "1"
+      requests:
+        memory: "64Gi"
+        cpu: "16"
+        nvidia.com/gpu: "1"
+    env:
+    - name: CUDA_VISIBLE_DEVICES
+      value: "0"
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    volumeMounts:
+    - name: workspace
+      mountPath: /workspace
+    - name: dshm
+      mountPath: /dev/shm
+  volumes:
+  - name: workspace
+    emptyDir:
+      sizeLimit: 100Gi
+  - name: dshm
+    emptyDir:
+      medium: Memory
+      sizeLimit: 32Gi
