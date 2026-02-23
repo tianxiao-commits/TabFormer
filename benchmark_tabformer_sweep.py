@@ -419,6 +419,40 @@ def find_max_batch_size_for_sla(
     }
 
 
+def extract_sla_results(all_results: List[Dict], sla_targets_ms: List[float]) -> Dict:
+    """
+    Extract best batch size for each SLA from collected results.
+
+    Args:
+        all_results: List of dicts with batch_size, latency_ms, throughput
+        sla_targets_ms: List of SLA targets to extract
+
+    Returns:
+        Dict mapping sla_ms -> {max_batch_size, max_throughput, latency_ms}
+    """
+    sla_results = {}
+
+    for sla_ms in sla_targets_ms:
+        best_batch_size = 1
+        best_throughput = 0
+        best_latency = float('inf')
+
+        for result in all_results:
+            if result['latency_ms'] <= sla_ms:
+                if result['throughput'] > best_throughput:
+                    best_batch_size = result['batch_size']
+                    best_throughput = result['throughput']
+                    best_latency = result['latency_ms']
+
+        sla_results[sla_ms] = {
+            'max_batch_size': best_batch_size,
+            'max_throughput': best_throughput,
+            'latency_ms': best_latency,
+        }
+
+    return sla_results
+
+
 def run_sweep(
     config_name: str,
     config: TabFormerConfig,
@@ -432,6 +466,10 @@ def run_sweep(
     print(f"Estimated params: {config.estimated_params:.1f}M")
     print(f"{'='*80}")
 
+    # Use maximum SLA for actual benchmarking
+    max_sla = max(sla_targets_ms)
+    print(f"Running with max SLA: {max_sla}ms, will extract results for all SLA targets")
+
     results = {
         'config_name': config_name,
         'estimated_params_m': config.estimated_params,
@@ -444,69 +482,82 @@ def run_sweep(
         results['baseline'][seq_len] = {}
         results['optimized'][seq_len] = {}
 
-        for sla_ms in sla_targets_ms:
-            print(f"\n  SLA Target: {sla_ms}ms")
+        try:
+            # Baseline: Native model without compile
+            print(f"  Baseline (no compile):")
+            model_baseline = TabFormerNative(config).to(device)
+            model_baseline.eval()
 
-            try:
-                # Baseline: Native model without compile
-                print(f"    Baseline (no compile):")
-                model_baseline = TabFormerNative(config).to(device)
-                model_baseline.eval()
+            baseline_results = find_max_batch_size_for_sla(
+                model_baseline,
+                seq_len,
+                max_sla,
+                device=device
+            )
 
-                baseline_results = find_max_batch_size_for_sla(
-                    model_baseline,
-                    seq_len,
-                    sla_ms,
-                    device=device
-                )
+            # Extract results for all SLA targets
+            baseline_sla_results = extract_sla_results(
+                baseline_results['all_results'],
+                sla_targets_ms
+            )
 
-                results['baseline'][seq_len][sla_ms] = baseline_results
-                print(f"    → Best: bs={baseline_results['max_batch_size']}, "
-                      f"{baseline_results['max_throughput']:.1f} seq/s @ {baseline_results['latency_ms']:.2f}ms")
+            for sla_ms, sla_data in baseline_sla_results.items():
+                results['baseline'][seq_len][sla_ms] = sla_data
+                print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
+                      f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms")
 
-                # Clean up
-                del model_baseline
-                torch.cuda.empty_cache()
+            # Clean up
+            del model_baseline
+            torch.cuda.empty_cache()
 
-                # Optimized: With torch.compile fullgraph
-                print(f"    Optimized (torch.compile):")
-                model_optimized = TabFormerNative(config).to(device)
-                model_optimized = torch.compile(
-                    model_optimized,
-                    mode='reduce-overhead',
-                    fullgraph=True
-                )
-                model_optimized.eval()
+            # Optimized: With torch.compile fullgraph
+            print(f"  Optimized (torch.compile):")
+            model_optimized = TabFormerNative(config).to(device)
+            model_optimized = torch.compile(
+                model_optimized,
+                mode='reduce-overhead',
+                fullgraph=True
+            )
+            model_optimized.eval()
 
-                optimized_results = find_max_batch_size_for_sla(
-                    model_optimized,
-                    seq_len,
-                    sla_ms,
-                    device=device
-                )
+            optimized_results = find_max_batch_size_for_sla(
+                model_optimized,
+                seq_len,
+                max_sla,
+                device=device
+            )
 
-                results['optimized'][seq_len][sla_ms] = optimized_results
+            # Extract results for all SLA targets
+            optimized_sla_results = extract_sla_results(
+                optimized_results['all_results'],
+                sla_targets_ms
+            )
 
-                if baseline_results['max_throughput'] > 0:
-                    speedup = optimized_results['max_throughput'] / baseline_results['max_throughput']
+            for sla_ms, sla_data in optimized_sla_results.items():
+                results['optimized'][seq_len][sla_ms] = sla_data
+
+                baseline_throughput = baseline_sla_results[sla_ms]['max_throughput']
+                if baseline_throughput > 0:
+                    speedup = sla_data['max_throughput'] / baseline_throughput
                 else:
                     speedup = 0
 
-                print(f"    → Best: bs={optimized_results['max_batch_size']}, "
-                      f"{optimized_results['max_throughput']:.1f} seq/s @ {optimized_results['latency_ms']:.2f}ms "
-                      f"({speedup:.2f}x speedup)")
+                print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
+                      f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms "
+                      f"({speedup:.2f}x)")
 
-                # Clean up
-                del model_optimized
-                torch.cuda.empty_cache()
+            # Clean up
+            del model_optimized
+            torch.cuda.empty_cache()
 
-            except Exception as e:
-                print(f"    Error: {e}")
-                import traceback
-                traceback.print_exc()
+        except Exception as e:
+            print(f"  Error: {e}")
+            import traceback
+            traceback.print_exc()
+            for sla_ms in sla_targets_ms:
                 results['baseline'][seq_len][sla_ms] = None
                 results['optimized'][seq_len][sla_ms] = None
-                torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
 
     return results
 
