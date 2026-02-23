@@ -90,8 +90,9 @@ class RotaryPositionEmbedding(nn.Module):
             q_rot, k_rot: Rotated query and key tensors
         """
         seq_len = q.shape[2]
+        input_dtype = q.dtype
 
-        # Get cos/sin for current sequence length (always FP32)
+        # Get cos/sin for current sequence length (FP32 for precision)
         cos = self.cos_cached[:seq_len, :self.dim]  # (seq_len, dim)
         sin = self.sin_cached[:seq_len, :self.dim]  # (seq_len, dim)
 
@@ -99,9 +100,13 @@ class RotaryPositionEmbedding(nn.Module):
         cos = cos.unsqueeze(0).unsqueeze(0)
         sin = sin.unsqueeze(0).unsqueeze(0)
 
-        # Apply rotation (computation in input dtype, but cos/sin are FP32)
+        # Apply rotation (computation happens in FP32 due to cos/sin)
         q_rot = (q * cos) + (self._rotate_half(q) * sin)
         k_rot = (k * cos) + (self._rotate_half(k) * sin)
+
+        # Convert back to input dtype (BF16) to match V for attention
+        q_rot = q_rot.to(input_dtype)
+        k_rot = k_rot.to(input_dtype)
 
         return q_rot, k_rot
 
