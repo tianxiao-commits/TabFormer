@@ -50,7 +50,7 @@ spec:
       fi
 
       echo "=========================================="
-      echo "TabFormer Benchmark"
+      echo "TabFormer Benchmark - BF16"
       echo "=========================================="
       echo "GPU: NVIDIA A100"
       echo "Configs: 20M, 120M, 720M"
@@ -59,18 +59,10 @@ spec:
       echo "Warmup iterations: 5"
       echo "Benchmark iterations: 50"
       echo "SLA targets: 5ms, 10ms, 15ms"
+      echo "Precision: BF16"
       echo "=========================================="
 
-      # Run FP32 benchmark
-      echo "Running FP32 (full precision) benchmark..."
-      python benchmark_tabformer_sweep.py \
-        --configs 20M 120M 720M \
-        --seq-lengths 32 64 128 256 512 1024 \
-        --sla-targets 5.0 10.0 15.0 \
-        --precision fp32 \
-        --output /workspace/tabformer_sweep_results_a100_fp32.json
-
-      echo ""
+      # Run BF16 benchmark
       echo "Running BF16 (mixed precision) benchmark..."
       python benchmark_tabformer_sweep.py \
         --configs 20M 120M 720M \
@@ -82,14 +74,12 @@ spec:
       echo "=========================================="
       echo "Benchmark Complete!"
       echo "Results saved to:"
-      echo "  FP32: /workspace/tabformer_sweep_results_a100_fp32.json"
       echo "  BF16: /workspace/tabformer_sweep_results_a100_bf16.json"
       echo "=========================================="
 
       # Keep pod alive for result inspection
       echo "Keeping pod alive for result inspection..."
       echo "To copy results:"
-      echo "  kubectl cp rlvr/tabformer-benchmark-a100:/workspace/tabformer_sweep_results_a100_fp32.json ./results_fp32.json"
       echo "  kubectl cp rlvr/tabformer-benchmark-a100:/workspace/tabformer_sweep_results_a100_bf16.json ./results_bf16.json"
       sleep infinity
 

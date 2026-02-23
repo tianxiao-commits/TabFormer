@@ -26,13 +26,21 @@ class RMSNorm(nn.Module):
         self.eps = eps
         self.weight = nn.Parameter(torch.ones(dim))
 
+    def _apply(self, fn):
+        """Override _apply to keep weight in FP32 when model.bfloat16() is called."""
+        super()._apply(fn)
+        # Force weight back to FP32 after any dtype conversion
+        if hasattr(self, 'weight'):
+            self.weight.data = self.weight.data.float()
+        return self
+
     def forward(self, x):
         # Always compute in FP32 for numerical stability
         input_dtype = x.dtype
         x = x.float()
         variance = x.pow(2).mean(-1, keepdim=True)
         x = x * torch.rsqrt(variance + self.eps)
-        # Convert back to input dtype and apply learnable weight
+        # Convert back to input dtype and apply learnable weight (FP32)
         return (self.weight * x).to(input_dtype)
 
 
@@ -59,6 +67,18 @@ class RotaryPositionEmbedding(nn.Module):
         # Store in FP32
         self.register_buffer("cos_cached", emb.cos(), persistent=False)
         self.register_buffer("sin_cached", emb.sin(), persistent=False)
+
+    def _apply(self, fn):
+        """Override _apply to keep cos/sin buffers in FP32 when model.bfloat16() is called."""
+        super()._apply(fn)
+        # Force cos/sin buffers back to FP32 after any dtype conversion
+        if hasattr(self, 'cos_cached'):
+            self.cos_cached = self.cos_cached.float()
+        if hasattr(self, 'sin_cached'):
+            self.sin_cached = self.sin_cached.float()
+        if hasattr(self, 'inv_freq'):
+            self.inv_freq = self.inv_freq.float()
+        return self
 
     def forward(self, q, k):
         """

@@ -285,7 +285,7 @@ def benchmark_model(
     Benchmark model throughput.
 
     Args:
-        use_bf16: If True, use BF16 mixed precision with autocast
+        use_bf16: If True, convert model parameters to BF16
                   If False, use full FP32 precision
 
     FP32 mode:
@@ -295,12 +295,12 @@ def benchmark_model(
     - Softmax: FP32
     - RoPE: FP32 cos/sin tables
 
-    BF16 mode (with autocast):
-    - Linear layers: BF16
-    - Embeddings: BF16
-    - RMSNorm: FP32 (enforced in implementation)
-    - Softmax: FP32 (PyTorch default)
-    - RoPE: FP32 cos/sin tables
+    BF16 mode (model.bfloat16()):
+    - Linear layers: BF16 parameters
+    - Embeddings: BF16 parameters
+    - RMSNorm: FP32 computation (enforced in implementation)
+    - Softmax: FP32 (scaled_dot_product_attention handles this)
+    - RoPE: FP32 cos/sin tables (enforced via _apply override)
 
     Returns dict with:
         - latency_ms: mean latency in milliseconds
@@ -309,8 +309,10 @@ def benchmark_model(
     """
     model.eval()
 
-    if not use_bf16:
-        # Ensure model is in FP32
+    # Convert model dtype once at the beginning
+    if use_bf16:
+        model = model.bfloat16()
+    else:
         model = model.float()
 
     # Create input
@@ -319,11 +321,7 @@ def benchmark_model(
     # Warmup
     with torch.no_grad():
         for _ in range(warmup_iters):
-            if use_bf16:
-                with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
-                    _ = model(input_ids)
-            else:
-                _ = model(input_ids)
+            _ = model(input_ids)
 
     # Synchronize before benchmarking
     if device == 'cuda':
@@ -337,11 +335,7 @@ def benchmark_model(
                 torch.cuda.synchronize()
             start = time.perf_counter()
 
-            if use_bf16:
-                with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
-                    _ = model(input_ids)
-            else:
-                _ = model(input_ids)
+            _ = model(input_ids)
 
             if device == 'cuda':
                 torch.cuda.synchronize()
