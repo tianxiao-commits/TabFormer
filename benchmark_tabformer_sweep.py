@@ -276,8 +276,8 @@ def benchmark_model(
     model: nn.Module,
     batch_size: int,
     seq_len: int,
-    warmup_iters: int = 100,
-    bench_iters: int = 100,
+    warmup_iters: int = 5,
+    bench_iters: int = 50,
     device: str = 'cuda'
 ) -> Dict:
     """
@@ -336,14 +336,97 @@ def benchmark_model(
     }
 
 
+def find_max_batch_size_for_sla(
+    model: nn.Module,
+    seq_len: int,
+    sla_ms: float,
+    device: str = 'cuda',
+    max_batch_size: int = 256,
+) -> Dict:
+    """
+    Find maximum batch size that meets SLA.
+
+    Strategy:
+    - Double batch size until 32: 1, 2, 4, 8, 16, 32
+    - Then increment by 16: 48, 64, 80, 96, ...
+
+    Returns dict with:
+        - max_batch_size: Largest batch size meeting SLA
+        - max_throughput: Throughput at that batch size
+        - latency_ms: Latency at that batch size
+        - all_results: List of all (batch_size, latency, throughput) tested
+    """
+    all_results = []
+    best_batch_size = 1
+    best_throughput = 0
+    best_latency = float('inf')
+
+    batch_size = 1
+
+    while batch_size <= max_batch_size:
+        try:
+            metrics = benchmark_model(
+                model,
+                batch_size,
+                seq_len,
+                warmup_iters=5,
+                bench_iters=50,
+                device=device
+            )
+
+            latency = metrics['latency_ms']
+            throughput = metrics['throughput']
+
+            all_results.append({
+                'batch_size': batch_size,
+                'latency_ms': latency,
+                'throughput': throughput,
+                'memory_mb': metrics['memory_mb'],
+            })
+
+            print(f"      bs={batch_size}: {latency:.2f}ms, {throughput:.1f} seq/s", end="")
+
+            if latency <= sla_ms:
+                # Still within SLA, update best
+                best_batch_size = batch_size
+                best_throughput = throughput
+                best_latency = latency
+                print(f" ✓")
+
+                # Determine next batch size
+                if batch_size < 32:
+                    batch_size *= 2  # Double until 32
+                else:
+                    batch_size += 16  # Increment by 16 after 32
+            else:
+                # Exceeded SLA, stop searching
+                print(f" ✗ (exceeds {sla_ms}ms SLA)")
+                break
+
+        except RuntimeError as e:
+            if "out of memory" in str(e):
+                print(f"      bs={batch_size}: OOM")
+                torch.cuda.empty_cache()
+                break
+            else:
+                raise
+
+    return {
+        'max_batch_size': best_batch_size,
+        'max_throughput': best_throughput,
+        'latency_ms': best_latency,
+        'all_results': all_results,
+    }
+
+
 def run_sweep(
     config_name: str,
     config: TabFormerConfig,
     seq_lengths: List[int],
-    batch_sizes: List[int],
+    sla_targets_ms: List[float],
     device: str = 'cuda',
 ) -> Dict:
-    """Run full sweep for a model config."""
+    """Run SLA-based sweep for a model config."""
     print(f"\n{'='*80}")
     print(f"Running sweep for {config_name} TabFormer")
     print(f"Estimated params: {config.estimated_params:.1f}M")
@@ -361,33 +444,32 @@ def run_sweep(
         results['baseline'][seq_len] = {}
         results['optimized'][seq_len] = {}
 
-        for batch_size in batch_sizes:
-            print(f"  Batch Size: {batch_size}")
+        for sla_ms in sla_targets_ms:
+            print(f"\n  SLA Target: {sla_ms}ms")
 
             try:
                 # Baseline: Native model without compile
+                print(f"    Baseline (no compile):")
                 model_baseline = TabFormerNative(config).to(device)
                 model_baseline.eval()
 
-                baseline_metrics = benchmark_model(
+                baseline_results = find_max_batch_size_for_sla(
                     model_baseline,
-                    batch_size,
                     seq_len,
-                    warmup_iters=100,
-                    bench_iters=100,
+                    sla_ms,
                     device=device
                 )
 
-                results['baseline'][seq_len][batch_size] = baseline_metrics
-                print(f"    Baseline - Latency: {baseline_metrics['latency_ms']:.2f}ms, "
-                      f"Throughput: {baseline_metrics['throughput']:.1f} seq/s, "
-                      f"Memory: {baseline_metrics['memory_mb']:.0f}MB")
+                results['baseline'][seq_len][sla_ms] = baseline_results
+                print(f"    → Best: bs={baseline_results['max_batch_size']}, "
+                      f"{baseline_results['max_throughput']:.1f} seq/s @ {baseline_results['latency_ms']:.2f}ms")
 
                 # Clean up
                 del model_baseline
                 torch.cuda.empty_cache()
 
                 # Optimized: With torch.compile fullgraph
+                print(f"    Optimized (torch.compile):")
                 model_optimized = TabFormerNative(config).to(device)
                 model_optimized = torch.compile(
                     model_optimized,
@@ -396,71 +478,37 @@ def run_sweep(
                 )
                 model_optimized.eval()
 
-                optimized_metrics = benchmark_model(
+                optimized_results = find_max_batch_size_for_sla(
                     model_optimized,
-                    batch_size,
                     seq_len,
-                    warmup_iters=100,  # Warmup for CUDA graph capture
-                    bench_iters=100,
+                    sla_ms,
                     device=device
                 )
 
-                results['optimized'][seq_len][batch_size] = optimized_metrics
-                speedup = baseline_metrics['latency_ms'] / optimized_metrics['latency_ms']
-                print(f"    Optimized - Latency: {optimized_metrics['latency_ms']:.2f}ms, "
-                      f"Throughput: {optimized_metrics['throughput']:.1f} seq/s, "
-                      f"Memory: {optimized_metrics['memory_mb']:.0f}MB, "
-                      f"Speedup: {speedup:.2f}x")
+                results['optimized'][seq_len][sla_ms] = optimized_results
+
+                if baseline_results['max_throughput'] > 0:
+                    speedup = optimized_results['max_throughput'] / baseline_results['max_throughput']
+                else:
+                    speedup = 0
+
+                print(f"    → Best: bs={optimized_results['max_batch_size']}, "
+                      f"{optimized_results['max_throughput']:.1f} seq/s @ {optimized_results['latency_ms']:.2f}ms "
+                      f"({speedup:.2f}x speedup)")
 
                 # Clean up
                 del model_optimized
                 torch.cuda.empty_cache()
 
-            except RuntimeError as e:
-                if "out of memory" in str(e):
-                    print(f"    OOM - skipping")
-                    results['baseline'][seq_len][batch_size] = None
-                    results['optimized'][seq_len][batch_size] = None
-                    torch.cuda.empty_cache()
-                else:
-                    raise
+            except Exception as e:
+                print(f"    Error: {e}")
+                import traceback
+                traceback.print_exc()
+                results['baseline'][seq_len][sla_ms] = None
+                results['optimized'][seq_len][sla_ms] = None
+                torch.cuda.empty_cache()
 
     return results
-
-
-def compute_sla_throughput(results: Dict, sla_targets_ms: List[float]) -> Dict:
-    """
-    Compute maximum throughput achievable for each SLA target.
-
-    For each SLA target (e.g., 5ms), find the maximum batch size that meets
-    the latency requirement, then compute throughput.
-    """
-    sla_results = {
-        'baseline': {sla: {} for sla in sla_targets_ms},
-        'optimized': {sla: {} for sla in sla_targets_ms},
-    }
-
-    for mode in ['baseline', 'optimized']:
-        for seq_len, batch_results in results[mode].items():
-            for sla_ms in sla_targets_ms:
-                max_throughput = 0
-                best_batch_size = None
-
-                for batch_size, metrics in batch_results.items():
-                    if metrics is None:
-                        continue
-
-                    if metrics['latency_ms'] <= sla_ms:
-                        if metrics['throughput'] > max_throughput:
-                            max_throughput = metrics['throughput']
-                            best_batch_size = batch_size
-
-                sla_results[mode][sla_ms][seq_len] = {
-                    'max_throughput': max_throughput,
-                    'best_batch_size': best_batch_size,
-                }
-
-    return sla_results
 
 
 def save_results(all_results: Dict, output_file: str):
@@ -480,28 +528,34 @@ def print_summary(all_results: Dict):
         print(f"\n{config_name} TabFormer ({results['estimated_params_m']:.1f}M parameters)")
         print("-" * 80)
 
-        # Print SLA throughput comparison
-        sla_results = results['sla_throughput']
+        # Get unique seq lengths and SLA targets
+        seq_lengths = sorted(results['baseline'].keys())
 
-        for sla_ms in [5, 10, 15]:
-            print(f"\nSLA: {sla_ms}ms")
-            print(f"  {'Seq Len':<10} {'Baseline':<25} {'Optimized':<25} {'Speedup':<10}")
-            print(f"  {'-'*10} {'-'*25} {'-'*25} {'-'*10}")
+        for seq_len in seq_lengths:
+            print(f"\nSequence Length: {seq_len}")
+            print(f"  {'SLA':<10} {'Baseline':<35} {'Optimized':<35} {'Speedup':<10}")
+            print(f"  {'-'*10} {'-'*35} {'-'*35} {'-'*10}")
 
-            for seq_len in sorted(sla_results['baseline'][sla_ms].keys()):
-                baseline_data = sla_results['baseline'][sla_ms][seq_len]
-                optimized_data = sla_results['optimized'][sla_ms][seq_len]
+            sla_targets = sorted(results['baseline'][seq_len].keys())
+            for sla_ms in sla_targets:
+                baseline_data = results['baseline'][seq_len][sla_ms]
+                optimized_data = results['optimized'][seq_len][sla_ms]
 
-                baseline_str = f"{baseline_data['max_throughput']:.1f} seq/s (bs={baseline_data['best_batch_size']})"
-                optimized_str = f"{optimized_data['max_throughput']:.1f} seq/s (bs={optimized_data['best_batch_size']})"
+                if baseline_data and optimized_data:
+                    baseline_str = f"{baseline_data['max_throughput']:.1f} seq/s (bs={baseline_data['max_batch_size']})"
+                    optimized_str = f"{optimized_data['max_throughput']:.1f} seq/s (bs={optimized_data['max_batch_size']})"
 
-                if baseline_data['max_throughput'] > 0 and optimized_data['max_throughput'] > 0:
-                    speedup = optimized_data['max_throughput'] / baseline_data['max_throughput']
-                    speedup_str = f"{speedup:.2f}x"
+                    if baseline_data['max_throughput'] > 0 and optimized_data['max_throughput'] > 0:
+                        speedup = optimized_data['max_throughput'] / baseline_data['max_throughput']
+                        speedup_str = f"{speedup:.2f}x"
+                    else:
+                        speedup_str = "N/A"
                 else:
+                    baseline_str = "N/A"
+                    optimized_str = "N/A"
                     speedup_str = "N/A"
 
-                print(f"  {seq_len:<10} {baseline_str:<25} {optimized_str:<25} {speedup_str:<10}")
+                print(f"  {sla_ms:<10.1f} {baseline_str:<35} {optimized_str:<35} {speedup_str:<10}")
 
 
 def main():
@@ -512,9 +566,6 @@ def main():
     parser.add_argument('--seq-lengths', nargs='+', type=int,
                         default=[32, 64, 128, 256, 512, 1024],
                         help='Sequence lengths to test')
-    parser.add_argument('--batch-sizes', nargs='+', type=int,
-                        default=[1, 2, 4, 8, 16, 32],
-                        help='Batch sizes to test')
     parser.add_argument('--device', default='cuda', help='Device to use')
     parser.add_argument('--output', default='tabformer_sweep_results.json',
                         help='Output JSON file')
@@ -535,8 +586,9 @@ def main():
     print(f"Device: {args.device}")
     print(f"Configs: {args.configs}")
     print(f"Sequence lengths: {args.seq_lengths}")
-    print(f"Batch sizes: {args.batch_sizes}")
     print(f"SLA targets: {args.sla_targets}ms")
+    print(f"Batch size strategy: Double until 32, then +16 (1,2,4,8,16,32,48,64...)")
+    print(f"Warmup: 5 iterations, Benchmark: 50 iterations")
 
     # Get model configs
     all_model_configs = get_model_configs()
@@ -553,13 +605,9 @@ def main():
             config_name,
             config,
             args.seq_lengths,
-            args.batch_sizes,
+            args.sla_targets,
             args.device
         )
-
-        # Compute SLA throughput
-        sla_throughput = compute_sla_throughput(results, args.sla_targets)
-        results['sla_throughput'] = sla_throughput
 
         all_results[config_name] = results
 
