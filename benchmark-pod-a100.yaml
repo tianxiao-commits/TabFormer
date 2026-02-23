@@ -50,33 +50,47 @@ spec:
       fi
 
       echo "=========================================="
-      echo "Starting TabFormer Benchmark Sweep"
+      echo "TabFormer Benchmark"
       echo "=========================================="
       echo "GPU: NVIDIA A100"
       echo "Configs: 20M, 120M, 720M"
       echo "Sequence lengths: 32, 64, 128, 256, 512, 1024"
-      echo "Batch sizes: 1, 2, 4, 8, 16, 32"
-      echo "Warmup iterations: 100"
-      echo "Benchmark iterations: 100"
+      echo "Batch size strategy: Double until 32, then +16"
+      echo "Warmup iterations: 5"
+      echo "Benchmark iterations: 50"
       echo "SLA targets: 5ms, 10ms, 15ms"
       echo "=========================================="
 
-      # Run benchmark sweep
+      # Run FP32 benchmark
+      echo "Running FP32 (full precision) benchmark..."
       python benchmark_tabformer_sweep.py \
         --configs 20M 120M 720M \
         --seq-lengths 32 64 128 256 512 1024 \
-        --batch-sizes 1 2 4 8 16 32 \
         --sla-targets 5.0 10.0 15.0 \
-        --output /workspace/tabformer_sweep_results_a100.json
+        --precision fp32 \
+        --output /workspace/tabformer_sweep_results_a100_fp32.json
+
+      echo ""
+      echo "Running BF16 (mixed precision) benchmark..."
+      python benchmark_tabformer_sweep.py \
+        --configs 20M 120M 720M \
+        --seq-lengths 32 64 128 256 512 1024 \
+        --sla-targets 5.0 10.0 15.0 \
+        --precision bf16 \
+        --output /workspace/tabformer_sweep_results_a100_bf16.json
 
       echo "=========================================="
       echo "Benchmark Complete!"
-      echo "Results saved to: /workspace/tabformer_sweep_results_a100.json"
+      echo "Results saved to:"
+      echo "  FP32: /workspace/tabformer_sweep_results_a100_fp32.json"
+      echo "  BF16: /workspace/tabformer_sweep_results_a100_bf16.json"
       echo "=========================================="
 
       # Keep pod alive for result inspection
       echo "Keeping pod alive for result inspection..."
-      echo "To copy results: kubectl cp rlvr/tabformer-benchmark-a100:/workspace/tabformer_sweep_results_a100.json ./results.json"
+      echo "To copy results:"
+      echo "  kubectl cp rlvr/tabformer-benchmark-a100:/workspace/tabformer_sweep_results_a100_fp32.json ./results_fp32.json"
+      echo "  kubectl cp rlvr/tabformer-benchmark-a100:/workspace/tabformer_sweep_results_a100_bf16.json ./results_bf16.json"
       sleep infinity
 
     resources:

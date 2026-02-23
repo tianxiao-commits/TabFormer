@@ -278,10 +278,29 @@ def benchmark_model(
     seq_len: int,
     warmup_iters: int = 5,
     bench_iters: int = 50,
-    device: str = 'cuda'
+    device: str = 'cuda',
+    use_bf16: bool = False,
 ) -> Dict:
     """
     Benchmark model throughput.
+
+    Args:
+        use_bf16: If True, use BF16 mixed precision with autocast
+                  If False, use full FP32 precision
+
+    FP32 mode:
+    - Linear layers: FP32
+    - Embeddings: FP32
+    - RMSNorm: FP32
+    - Softmax: FP32
+    - RoPE: FP32 cos/sin tables
+
+    BF16 mode (with autocast):
+    - Linear layers: BF16
+    - Embeddings: BF16
+    - RMSNorm: FP32 (enforced in implementation)
+    - Softmax: FP32 (PyTorch default)
+    - RoPE: FP32 cos/sin tables
 
     Returns dict with:
         - latency_ms: mean latency in milliseconds
@@ -290,13 +309,21 @@ def benchmark_model(
     """
     model.eval()
 
+    if not use_bf16:
+        # Ensure model is in FP32
+        model = model.float()
+
     # Create input
     input_ids = create_sample_input(batch_size, seq_len, device)
 
     # Warmup
     with torch.no_grad():
         for _ in range(warmup_iters):
-            _ = model(input_ids)
+            if use_bf16:
+                with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
+                    _ = model(input_ids)
+            else:
+                _ = model(input_ids)
 
     # Synchronize before benchmarking
     if device == 'cuda':
@@ -310,7 +337,11 @@ def benchmark_model(
                 torch.cuda.synchronize()
             start = time.perf_counter()
 
-            _ = model(input_ids)
+            if use_bf16:
+                with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
+                    _ = model(input_ids)
+            else:
+                _ = model(input_ids)
 
             if device == 'cuda':
                 torch.cuda.synchronize()
@@ -342,6 +373,7 @@ def find_max_batch_size_for_sla(
     sla_ms: float,
     device: str = 'cuda',
     max_batch_size: int = 256,
+    use_bf16: bool = False,
 ) -> Dict:
     """
     Find maximum batch size that meets SLA.
@@ -371,7 +403,8 @@ def find_max_batch_size_for_sla(
                 seq_len,
                 warmup_iters=5,
                 bench_iters=50,
-                device=device
+                device=device,
+                use_bf16=use_bf16,
             )
 
             latency = metrics['latency_ms']
@@ -459,6 +492,7 @@ def run_sweep(
     seq_lengths: List[int],
     sla_targets_ms: List[float],
     device: str = 'cuda',
+    use_bf16: bool = False,
 ) -> Dict:
     """Run SLA-based sweep for a model config."""
     print(f"\n{'='*80}")
@@ -492,7 +526,8 @@ def run_sweep(
                 model_baseline,
                 seq_len,
                 max_sla,
-                device=device
+                device=device,
+                use_bf16=use_bf16,
             )
 
             # Extract results for all SLA targets
@@ -524,7 +559,8 @@ def run_sweep(
                 model_optimized,
                 seq_len,
                 max_sla,
-                device=device
+                device=device,
+                use_bf16=use_bf16,
             )
 
             # Extract results for all SLA targets
@@ -623,8 +659,12 @@ def main():
     parser.add_argument('--sla-targets', nargs='+', type=float,
                         default=[5.0, 10.0, 15.0],
                         help='SLA targets in milliseconds')
+    parser.add_argument('--precision', choices=['fp32', 'bf16'], default='fp32',
+                        help='Precision mode: fp32 (full precision) or bf16 (mixed precision with autocast)')
 
     args = parser.parse_args()
+
+    use_bf16 = (args.precision == 'bf16')
 
     # Check CUDA availability
     if args.device == 'cuda' and not torch.cuda.is_available():
@@ -632,9 +672,16 @@ def main():
         args.device = 'cpu'
 
     print("="*80)
-    print("TABFORMER BENCHMARK SWEEP")
+    print(f"TABFORMER BENCHMARK SWEEP - {args.precision.upper()} PRECISION")
     print("="*80)
     print(f"Device: {args.device}")
+    if use_bf16:
+        print(f"Precision: BF16 (mixed precision with autocast)")
+        print(f"  - Linear/Embeddings: BF16")
+        print(f"  - RMSNorm/Softmax/RoPE: FP32")
+    else:
+        print(f"Precision: FP32 (full precision)")
+        print(f"  - All operations: FP32")
     print(f"Configs: {args.configs}")
     print(f"Sequence lengths: {args.seq_lengths}")
     print(f"SLA targets: {args.sla_targets}ms")
@@ -657,7 +704,8 @@ def main():
             config,
             args.seq_lengths,
             args.sla_targets,
-            args.device
+            args.device,
+            use_bf16,
         )
 
         all_results[config_name] = results
