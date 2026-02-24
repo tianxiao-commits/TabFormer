@@ -377,8 +377,7 @@ def find_max_batch_size_for_sla(
     Find maximum batch size that meets SLA.
 
     Strategy:
-    - Double batch size until 32: 1, 2, 4, 8, 16, 32
-    - Then increment by 16: 48, 64, 80, 96, ...
+    - Batch sizes: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, ... (+2 after 4)
     - Recompile model for each batch_size for proper CUDA graph capture
 
     Args:
@@ -443,11 +442,15 @@ def find_max_batch_size_for_sla(
                 best_latency = latency
                 print(f" ✓")
 
-                # Determine next batch size
-                if batch_size < 32:
-                    batch_size *= 2  # Double until 32
+                # Determine next batch size: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, ...
+                if batch_size == 1:
+                    batch_size = 2
+                elif batch_size == 2:
+                    batch_size = 3
+                elif batch_size == 3:
+                    batch_size = 4
                 else:
-                    batch_size += 16  # Increment by 16 after 32
+                    batch_size += 2  # Increment by 2 after 4
             else:
                 # Exceeded SLA, stop searching
                 print(f" ✗ (exceeds {sla_ms}ms SLA)")
