@@ -29,8 +29,15 @@ spec:
     - "-c"
     - |
       set -e
+
+      # Set up logging
+      LOG_FILE="/workspace/benchmark_$(date +%Y%m%d_%H%M%S).log"
+      exec > >(tee -a "$LOG_FILE") 2>&1
+
       echo "=========================================="
       echo "TabFormer Optimized-Only Benchmark"
+      echo "Started at: $(date)"
+      echo "Log file: $LOG_FILE"
       echo "=========================================="
 
       echo "Installing dependencies..."
@@ -55,7 +62,7 @@ spec:
       echo "GPU: NVIDIA A100"
       echo "Configs: 20M, 120M, 720M"
       echo "Sequence lengths: 32, 64, 128, 256, 512, 1024"
-      echo "Batch size progression: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18..."
+      echo "Batch size progression: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96..."
       echo "Warmup iterations: 20 (for CUDA graph capture)"
       echo "Benchmark iterations: 50"
       echo "SLA targets: 5ms, 10ms, 15ms"
@@ -72,17 +79,13 @@ spec:
 
       echo "=========================================="
       echo "Benchmark Complete!"
+      echo "Finished at: $(date)"
       echo "Results saved to:"
       echo "  JSON: /workspace/bf16_optimized_results.json"
       echo "  JSONL: /workspace/bf16_optimized_results_raw.jsonl"
+      echo "  Log: $LOG_FILE"
+      echo "Results are persisted in PVC: tabformer-benchmark-data"
       echo "=========================================="
-
-      # Keep pod alive for result inspection
-      echo "Keeping pod alive for result inspection..."
-      echo "To copy results:"
-      echo "  kubectl cp rlvr/tabformer-optimized-a100:/workspace/bf16_optimized_results.json ./bf16_optimized_results.json"
-      echo "  kubectl cp rlvr/tabformer-optimized-a100:/workspace/bf16_optimized_results_raw.jsonl ./bf16_optimized_results_raw.jsonl"
-      sleep infinity
 
     resources:
       limits:
@@ -103,8 +106,8 @@ spec:
       mountPath: /dev/shm
   volumes:
   - name: workspace
-    emptyDir:
-      sizeLimit: 100Gi
+    persistentVolumeClaim:
+      claimName: tabformer-benchmark-data
   - name: dshm
     emptyDir:
       medium: Memory
