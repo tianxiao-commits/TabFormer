@@ -421,15 +421,25 @@ def find_max_batch_size_for_sla(
                 best_latency = latency
                 print(f" ✓")
 
-                # Determine next batch size: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, ...
+                # Determine next batch size
+                # 1, 2, 3, 4, 6, 8, 10, 12, 14, 16
+                # Then +4 until 32: 20, 24, 28, 32
+                # Then +8 until 64: 40, 48, 56, 64
+                # Then +16: 80, 96, 112, 128, ...
                 if batch_size == 1:
                     batch_size = 2
                 elif batch_size == 2:
                     batch_size = 3
                 elif batch_size == 3:
                     batch_size = 4
+                elif batch_size < 16:
+                    batch_size += 2  # 4 → 6 → 8 → 10 → 12 → 14 → 16
+                elif batch_size < 32:
+                    batch_size += 4  # 16 → 20 → 24 → 28 → 32
+                elif batch_size < 64:
+                    batch_size += 8  # 32 → 40 → 48 → 56 → 64
                 else:
-                    batch_size += 2  # Increment by 2 after 4
+                    batch_size += 16  # 64 → 80 → 96 → 112 → 128 ...
             else:
                 # Exceeded SLA, stop searching
                 print(f" ✗ (exceeds {sla_ms}ms SLA)")
