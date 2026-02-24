@@ -65,18 +65,16 @@ spec:
       echo "[1/2] Profiling BASELINE (no torch.compile)..."
       nsys profile \
         -o /workspace/tabformer_baseline_profile \
-        --capture-range cudaProfilerApi \
-        --capture-range-end stop \
         --stats=true \
+        --force-overwrite=true \
         python test_baseline.py
 
       echo ""
       echo "[2/2] Profiling OPTIMIZED (torch.compile + CUDA graphs)..."
       nsys profile \
         -o /workspace/tabformer_optimized_profile \
-        --capture-range cudaProfilerApi \
-        --capture-range-end stop \
         --stats=true \
+        --force-overwrite=true \
         python test_optimized.py
 
       echo ""
