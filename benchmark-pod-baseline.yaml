@@ -76,23 +76,19 @@ spec:
       if [ -f "/workspace/bf16_optimized_results_raw.xlsx" ]; then
         echo "Found existing optimized results, will append baseline results"
         python benchmark_tabformer_baseline_only.py \
-          --output /workspace/bf16_baseline_results.json \
           --xlsx /workspace/bf16_optimized_results_raw.xlsx \
           --device cuda
       else
-        echo "No existing optimized results found, creating new xlsx"
-        python benchmark_tabformer_baseline_only.py \
-          --output /workspace/bf16_baseline_results.json \
-          --xlsx /workspace/bf16_results_raw.xlsx \
-          --device cuda
+        echo "ERROR: No existing optimized results found!"
+        echo "Please copy bf16_optimized_results_raw.xlsx to PVC first"
+        exit 1
       fi
 
       echo "=========================================="
       echo "Benchmark Complete!"
       echo "Finished at: $(date)"
       echo "Results saved to:"
-      echo "  JSON: /workspace/bf16_baseline_results.json"
-      echo "  JSONL: /workspace/bf16_baseline_results_raw.jsonl"
+      echo "  XLSX (appended): /workspace/bf16_optimized_results_raw.xlsx"
       echo "  Log: $LOG_FILE"
       echo "Results are persisted in PVC: tabformer-benchmark-data"
       echo "=========================================="

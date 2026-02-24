@@ -682,19 +682,17 @@ def main():
     import pandas as pd
     import os
 
-    parser = argparse.ArgumentParser(description='TabFormer Baseline-Only Benchmark Sweep')
-    parser.add_argument('--output', type=str, default='bf16_baseline_results.json',
-                        help='Output JSON file for results')
+    parser = argparse.ArgumentParser(description='TabFormer Baseline-Only Benchmark')
     parser.add_argument('--xlsx', type=str, default='bf16_optimized_results_raw.xlsx',
-                        help='XLSX file to append baseline results to')
+                        help='XLSX file to read configs from and append baseline results to')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device to run on (cuda or cpu)')
     args = parser.parse_args()
 
     device = args.device
-    print(f"Running baseline-only benchmark sweep on {device}")
+    print(f"Running baseline-only benchmark on {device}")
     print("Using BF16 precision (no torch.compile)")
-    print("Testing baseline performance without torch.compile optimization")
+    print("Testing only the exact configs from xlsx (no SLA sweep)")
     print(f"Will append results to: {args.xlsx}")
 
     # Read xlsx to determine which configs to run
@@ -706,53 +704,91 @@ def main():
     print(f"\nReading configurations from {args.xlsx}...")
     df = pd.read_excel(args.xlsx)
 
-    # Extract unique (config, seq_len) combinations
-    config_seq_combinations = df[['config', 'seq_len']].drop_duplicates()
+    # Extract unique (config, seq_len, batch_size) combinations
+    configs_to_run = df[['config', 'seq_len', 'batch_size']].drop_duplicates()
 
-    # Group by config to get seq_lengths for each
-    configs_to_run = {}
-    for config_name in config_seq_combinations['config'].unique():
-        seq_lengths = sorted(config_seq_combinations[config_seq_combinations['config'] == config_name]['seq_len'].tolist())
-        configs_to_run[config_name] = seq_lengths
-
-    print("\n=== Configurations to benchmark (from xlsx) ===")
-    for config_name, seq_lengths in sorted(configs_to_run.items()):
-        print(f"  {config_name}: seq_lengths = {seq_lengths}")
+    print(f"\n=== Found {len(configs_to_run)} unique configurations ===")
+    for config_name in sorted(configs_to_run['config'].unique()):
+        config_df = configs_to_run[configs_to_run['config'] == config_name]
+        print(f"\n{config_name}:")
+        for seq_len in sorted(config_df['seq_len'].unique()):
+            batch_sizes = sorted(config_df[config_df['seq_len'] == seq_len]['batch_size'].tolist())
+            print(f"  seq_len={seq_len}: batch_sizes={batch_sizes}")
     print("="*50)
 
     # Get model configs
     model_configs = get_model_configs()
 
-    # SLA targets
-    sla_targets_ms = [5.0, 10.0, 15.0]
+    # Run baseline benchmarks
+    results = []
+    total = len(configs_to_run)
 
-    # Run sweep for each model found in xlsx
-    all_results = {}
-    for config_name in sorted(configs_to_run.keys()):
+    for idx, row in configs_to_run.iterrows():
+        config_name = row['config']
+        seq_len = int(row['seq_len'])
+        batch_size = int(row['batch_size'])
+
+        print(f"\n[{idx+1}/{total}] Benchmarking {config_name}, seq_len={seq_len}, batch_size={batch_size}")
+
         if config_name not in model_configs:
-            print(f"WARNING: Config {config_name} not found in model_configs, skipping")
+            print(f"WARNING: Config {config_name} not found, skipping")
             continue
 
         config = model_configs[config_name]
-        seq_lengths = configs_to_run[config_name]
 
-        results = run_sweep(
-            config_name,
-            config,
-            seq_lengths,
-            sla_targets_ms,
-            device=device,
-            use_bf16=True,
-        )
-        all_results[config_name] = results
+        try:
+            # Create model
+            model = TabFormerNative(config).to(device)
+            model.eval()
 
-    # Save results
-    save_results(all_results, args.output)
-    save_raw_results_jsonl(all_results, args.output)
-    save_to_xlsx(all_results, args.xlsx, append=True)
+            # Benchmark
+            metrics = benchmark_model(
+                model,
+                batch_size,
+                seq_len,
+                warmup_iters=5,
+                bench_iters=50,
+                device=device,
+                use_bf16=True,
+            )
+
+            # Store result
+            results.append({
+                'config': config_name,
+                'estimated_params_m': config.estimated_params,
+                'seq_len': seq_len,
+                'batch_size': batch_size,
+                'model_type': 'baseline',
+                'latency_ms': metrics['latency_ms'],
+                'throughput': metrics['throughput'],
+                'memory_mb': metrics['memory_mb'],
+            })
+
+            print(f"  Result: {metrics['latency_ms']:.2f}ms, {metrics['throughput']:.1f} seq/s")
+
+            # Clean up
+            del model
+            torch.cuda.empty_cache()
+
+        except RuntimeError as e:
+            if "out of memory" in str(e):
+                print(f"  OOM - skipping")
+                torch.cuda.empty_cache()
+            else:
+                raise
+
+    # Convert to DataFrame and append to xlsx
+    new_df = pd.DataFrame(results)
+
+    if len(new_df) > 0:
+        print(f"\n=== Appending {len(new_df)} baseline results to xlsx ===")
+        existing_df = pd.read_excel(args.xlsx)
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+        combined_df.to_excel(args.xlsx, index=False)
+        print(f"Total rows in xlsx: {len(combined_df)}")
 
     print("\n" + "="*80)
-    print("Baseline benchmark sweep complete!")
+    print("Baseline benchmark complete!")
     print("="*80)
 
 
