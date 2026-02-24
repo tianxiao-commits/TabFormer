@@ -94,7 +94,7 @@ spec:
       echo "  JSON: /workspace/fp32_optimized_results.json"
       echo "  JSONL: /workspace/fp32_optimized_results_raw.jsonl"
       echo "  Log: $LOG_FILE"
-      echo "Results are persisted in PVC: tabformer-benchmark-data"
+      echo "Results are persisted in PVC: tabformer-benchmark-data-fp32"
       echo "=========================================="
 
     resources:
@@ -117,7 +117,7 @@ spec:
   volumes:
   - name: workspace
     persistentVolumeClaim:
-      claimName: tabformer-benchmark-data
+      claimName: tabformer-benchmark-data-fp32
   - name: dshm
     emptyDir:
       medium: Memory
