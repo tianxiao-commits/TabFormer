@@ -365,12 +365,13 @@ def benchmark_model(
 
 
 def find_max_batch_size_for_sla(
-    model: nn.Module,
+    config: TabFormerConfig,
     seq_len: int,
     sla_ms: float,
     device: str = 'cuda',
     max_batch_size: int = 256,
     use_bf16: bool = False,
+    use_compile: bool = False,
 ) -> Dict:
     """
     Find maximum batch size that meets SLA.
@@ -378,6 +379,11 @@ def find_max_batch_size_for_sla(
     Strategy:
     - Double batch size until 32: 1, 2, 4, 8, 16, 32
     - Then increment by 16: 48, 64, 80, 96, ...
+    - Recompile model for each batch_size for proper CUDA graph capture
+
+    Args:
+        config: Model configuration
+        use_compile: If True, compile model with torch.compile(fullgraph=True, mode='reduce-overhead')
 
     Returns dict with:
         - max_batch_size: Largest batch size meeting SLA
@@ -394,15 +400,29 @@ def find_max_batch_size_for_sla(
 
     while batch_size <= max_batch_size:
         try:
+            # Create fresh model for each batch_size to enable CUDA graph capture
+            model = TabFormerNative(config).to(device)
+            if use_compile:
+                model = torch.compile(
+                    model,
+                    mode='reduce-overhead',
+                    fullgraph=True
+                )
+            model.eval()
+
             metrics = benchmark_model(
                 model,
                 batch_size,
                 seq_len,
-                warmup_iters=5,
+                warmup_iters=20,  # Increased for CUDA graph capture
                 bench_iters=50,
                 device=device,
                 use_bf16=use_bf16,
             )
+
+            # Clean up model to free memory
+            del model
+            torch.cuda.empty_cache()
 
             latency = metrics['latency_ms']
             throughput = metrics['throughput']
@@ -516,15 +536,13 @@ def run_sweep(
         try:
             # Baseline: Native model without compile
             print(f"  Baseline (no compile):")
-            model_baseline = TabFormerNative(config).to(device)
-            model_baseline.eval()
-
             baseline_results = find_max_batch_size_for_sla(
-                model_baseline,
+                config,
                 seq_len,
                 max_sla,
                 device=device,
                 use_bf16=use_bf16,
+                use_compile=False,
             )
 
             # Extract results for all SLA targets
@@ -538,26 +556,15 @@ def run_sweep(
                 print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
                       f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms")
 
-            # Clean up
-            del model_baseline
-            torch.cuda.empty_cache()
-
-            # Optimized: With torch.compile fullgraph
-            print(f"  Optimized (torch.compile):")
-            model_optimized = TabFormerNative(config).to(device)
-            model_optimized = torch.compile(
-                model_optimized,
-                mode='reduce-overhead',
-                fullgraph=True
-            )
-            model_optimized.eval()
-
+            # Optimized: With torch.compile fullgraph (recompiles for each batch_size)
+            print(f"  Optimized (torch.compile, recompile per config for CUDA graphs):")
             optimized_results = find_max_batch_size_for_sla(
-                model_optimized,
+                config,
                 seq_len,
                 max_sla,
                 device=device,
                 use_bf16=use_bf16,
+                use_compile=True,
             )
 
             # Extract results for all SLA targets
@@ -578,10 +585,6 @@ def run_sweep(
                 print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
                       f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms "
                       f"({speedup:.2f}x)")
-
-            # Clean up
-            del model_optimized
-            torch.cuda.empty_cache()
 
         except Exception as e:
             print(f"  Error: {e}")
