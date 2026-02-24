@@ -27,6 +27,9 @@ import argparse
 from models.gpt_native import NativeGPTLMHeadModel
 from models.hierarchical import TabFormerEmbeddings
 
+# Increase torch.compile cache size limit to handle multiple (batch_size, seq_len) shapes
+torch._dynamo.config.cache_size_limit = 128  # Default is 64
+
 
 @dataclass
 class TabFormerConfig:
