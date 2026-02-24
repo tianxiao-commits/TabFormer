@@ -424,7 +424,7 @@ def find_max_batch_size_for_sla(
     all_measurements = {}
 
     # Always measure batch_size=1
-    print(f"    Measuring batch_size=1 (baseline)...")
+    print(f"    Measuring batch_size=1 (reference point)...")
     metrics = benchmark_batch_size(config, 1, seq_len, device, use_bf16)
 
     if metrics is None:
