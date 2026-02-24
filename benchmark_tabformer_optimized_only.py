@@ -706,14 +706,27 @@ def main():
     # Get model configs
     configs = get_model_configs()
 
-    # Test configurations
-    seq_lengths = [32, 64, 128, 256, 512, 1024]
+    # SLA targets
     sla_targets_ms = [5.0, 10.0, 15.0]
+
+    # Define sequence lengths per model (smaller models test longer sequences)
+    model_seq_lengths = {
+        '20M': [32, 64, 128, 256],
+        '120M': [32, 64],
+        '720M': [16],
+    }
+
+    print(f"\nSequence length configuration:")
+    for model, seq_lens in model_seq_lengths.items():
+        print(f"  {model}: {seq_lens}")
+    print()
 
     # Run sweep for each model
     all_results = {}
     for config_name in ['20M', '120M', '720M']:
         config = configs[config_name]
+        seq_lengths = model_seq_lengths[config_name]
+
         results = run_sweep(
             config_name,
             config,
