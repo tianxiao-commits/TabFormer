@@ -621,10 +621,69 @@ def save_raw_results_jsonl(all_results: Dict, output_file: str):
     print(f"Raw results saved to {jsonl_file}")
 
 
+def save_to_xlsx(all_results: Dict, xlsx_file: str, append: bool = True):
+    """
+    Save all raw data points to XLSX file, appending to existing file if present.
+    """
+    import pandas as pd
+    import os
+
+    # Collect all data points
+    records = []
+    for config_name, config_results in all_results.items():
+        if config_name in ['20M', '120M', '720M']:
+            estimated_params = config_results.get('estimated_params_m', 0)
+
+            # Process baseline results
+            for seq_len, seq_data in config_results.get('baseline', {}).items():
+                for sla_ms, sla_data in seq_data.items():
+                    if isinstance(sla_data, dict) and 'bs1_throughput' in sla_data:
+                        # Add bs=1 data point
+                        records.append({
+                            'config': config_name,
+                            'estimated_params_m': estimated_params,
+                            'seq_len': int(seq_len),
+                            'batch_size': 1,
+                            'model_type': 'baseline',
+                            'latency_ms': sla_data['bs1_latency'],
+                            'throughput': sla_data['bs1_throughput'],
+                            'memory_mb': 0,
+                        })
+
+                        # Add max batch size data if different and SLA met
+                        if sla_data['sla_met'] and sla_data['max_batch_size'] > 1:
+                            records.append({
+                                'config': config_name,
+                                'estimated_params_m': estimated_params,
+                                'seq_len': int(seq_len),
+                                'batch_size': sla_data['max_batch_size'],
+                                'model_type': 'baseline',
+                                'latency_ms': sla_data['latency_ms'],
+                                'throughput': sla_data['max_throughput'],
+                                'memory_mb': 0,
+                            })
+
+    new_df = pd.DataFrame(records)
+
+    # If append mode and file exists, load existing and append
+    if append and os.path.exists(xlsx_file):
+        print(f"Appending to existing file: {xlsx_file}")
+        existing_df = pd.read_excel(xlsx_file)
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+        combined_df.to_excel(xlsx_file, index=False)
+        print(f"Appended {len(new_df)} rows (total: {len(combined_df)} rows)")
+    else:
+        print(f"Creating new file: {xlsx_file}")
+        new_df.to_excel(xlsx_file, index=False)
+        print(f"Saved {len(new_df)} rows")
+
+
 def main():
     parser = argparse.ArgumentParser(description='TabFormer Baseline-Only Benchmark Sweep')
     parser.add_argument('--output', type=str, default='bf16_baseline_results.json',
                         help='Output JSON file for results')
+    parser.add_argument('--xlsx', type=str, default='bf16_optimized_results_raw.xlsx',
+                        help='XLSX file to append baseline results to')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device to run on (cuda or cpu)')
     args = parser.parse_args()
@@ -633,11 +692,12 @@ def main():
     print(f"Running baseline-only benchmark sweep on {device}")
     print("Using BF16 precision (no torch.compile)")
     print("Testing baseline performance without torch.compile optimization")
+    print(f"Will append results to: {args.xlsx}")
 
     # Get model configs
     configs = get_model_configs()
 
-    # Test configurations
+    # Test configurations - same as optimized
     seq_lengths = [32, 64, 128, 256, 512, 1024]
     sla_targets_ms = [5.0, 10.0, 15.0]
 
@@ -651,13 +711,14 @@ def main():
             seq_lengths,
             sla_targets_ms,
             device=device,
-            use_bf16=True,  # Always use BF16 for optimized
+            use_bf16=True,
         )
         all_results[config_name] = results
 
     # Save results
     save_results(all_results, args.output)
     save_raw_results_jsonl(all_results, args.output)
+    save_to_xlsx(all_results, args.xlsx, append=True)
 
     print("\n" + "="*80)
     print("Baseline benchmark sweep complete!")

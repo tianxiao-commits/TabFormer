@@ -42,7 +42,7 @@ spec:
 
       echo "Installing dependencies..."
       apt-get update && apt-get install -y tmux wget git
-      pip install transformers scikit-learn pandas tqdm
+      pip install transformers scikit-learn pandas tqdm openpyxl
 
       # Clone TabFormer repository
       echo "Cloning TabFormer repository..."
@@ -72,9 +72,20 @@ spec:
 
       # Run baseline-only benchmark
       echo "Running BF16 baseline-only benchmark..."
-      python benchmark_tabformer_baseline_only.py \
-        --output /workspace/bf16_baseline_results.json \
-        --device cuda
+      # Check if optimized results xlsx exists to append to
+      if [ -f "/workspace/bf16_optimized_results_raw.xlsx" ]; then
+        echo "Found existing optimized results, will append baseline results"
+        python benchmark_tabformer_baseline_only.py \
+          --output /workspace/bf16_baseline_results.json \
+          --xlsx /workspace/bf16_optimized_results_raw.xlsx \
+          --device cuda
+      else
+        echo "No existing optimized results found, creating new xlsx"
+        python benchmark_tabformer_baseline_only.py \
+          --output /workspace/bf16_baseline_results.json \
+          --xlsx /workspace/bf16_results_raw.xlsx \
+          --device cuda
+      fi
 
       echo "=========================================="
       echo "Benchmark Complete!"
