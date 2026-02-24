@@ -478,26 +478,42 @@ def extract_sla_results(all_results: List[Dict], sla_targets_ms: List[float]) ->
         sla_targets_ms: List of SLA targets to extract
 
     Returns:
-        Dict mapping sla_ms -> {max_batch_size, max_throughput, latency_ms}
+        Dict mapping sla_ms -> {max_batch_size, max_throughput, latency_ms, sla_met, bs1_throughput, bs1_latency}
     """
     sla_results = {}
+
+    # Get bs=1 baseline data
+    bs1_result = next((r for r in all_results if r['batch_size'] == 1), None)
+    bs1_throughput = bs1_result['throughput'] if bs1_result else 0
+    bs1_latency = bs1_result['latency_ms'] if bs1_result else float('inf')
 
     for sla_ms in sla_targets_ms:
         best_batch_size = 1
         best_throughput = 0
         best_latency = float('inf')
+        sla_met = False
 
         for result in all_results:
             if result['latency_ms'] <= sla_ms:
+                sla_met = True
                 if result['throughput'] > best_throughput:
                     best_batch_size = result['batch_size']
                     best_throughput = result['throughput']
                     best_latency = result['latency_ms']
 
+        # If SLA not met, still include bs=1 data for analysis
+        if not sla_met and bs1_result:
+            best_batch_size = 1
+            best_throughput = bs1_throughput
+            best_latency = bs1_latency
+
         sla_results[sla_ms] = {
             'max_batch_size': best_batch_size,
             'max_throughput': best_throughput,
             'latency_ms': best_latency,
+            'sla_met': sla_met,
+            'bs1_throughput': bs1_throughput,
+            'bs1_latency': bs1_latency,
         }
 
     return sla_results
@@ -553,8 +569,9 @@ def run_sweep(
 
             for sla_ms, sla_data in baseline_sla_results.items():
                 results['baseline'][seq_len][sla_ms] = sla_data
+                met_str = "✓" if sla_data['sla_met'] else f"✗ (bs=1: {sla_data['bs1_throughput']:.1f} seq/s @ {sla_data['bs1_latency']:.2f}ms)"
                 print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
-                      f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms")
+                      f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms {met_str}")
 
             # Optimized: With torch.compile fullgraph (recompiles for each batch_size)
             print(f"  Optimized (torch.compile, recompile per config for CUDA graphs):")
@@ -576,15 +593,17 @@ def run_sweep(
             for sla_ms, sla_data in optimized_sla_results.items():
                 results['optimized'][seq_len][sla_ms] = sla_data
 
-                baseline_throughput = baseline_sla_results[sla_ms]['max_throughput']
-                if baseline_throughput > 0:
-                    speedup = sla_data['max_throughput'] / baseline_throughput
+                baseline_data = baseline_sla_results[sla_ms]
+                # Compare bs=1 throughput for apples-to-apples comparison
+                if baseline_data['bs1_throughput'] > 0:
+                    speedup = sla_data['bs1_throughput'] / baseline_data['bs1_throughput']
                 else:
                     speedup = 0
 
+                met_str = "✓" if sla_data['sla_met'] else f"✗ (bs=1: {sla_data['bs1_throughput']:.1f} seq/s @ {sla_data['bs1_latency']:.2f}ms)"
                 print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
                       f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms "
-                      f"({speedup:.2f}x)")
+                      f"{met_str} (bs=1 speedup: {speedup:.2f}x)")
 
         except Exception as e:
             print(f"  Error: {e}")
@@ -599,10 +618,93 @@ def run_sweep(
 
 
 def save_results(all_results: Dict, output_file: str):
-    """Save results to JSON file."""
+    """Save aggregated results to JSON file."""
     with open(output_file, 'w') as f:
         json.dump(all_results, f, indent=2)
-    print(f"\nResults saved to {output_file}")
+    print(f"\nAggregated results saved to {output_file}")
+
+
+def save_raw_results_jsonl(all_results: Dict, output_file: str):
+    """
+    Save all raw data points to JSONL file.
+
+    Each line contains one measurement with all metadata:
+    {config, seq_len, batch_size, model_type (baseline/optimized),
+     latency_ms, throughput, memory_mb}
+    """
+    jsonl_file = output_file.replace('.json', '_raw.jsonl')
+
+    with open(jsonl_file, 'w') as f:
+        for config_name, config_results in all_results.items():
+            if config_name in ['20M', '120M', '720M']:  # Skip metadata fields
+                estimated_params = config_results.get('estimated_params_m', 0)
+
+                # Process baseline results
+                for seq_len, seq_data in config_results.get('baseline', {}).items():
+                    # Get raw all_results if available, otherwise reconstruct from SLA data
+                    for sla_ms, sla_data in seq_data.items():
+                        if isinstance(sla_data, dict) and 'bs1_throughput' in sla_data:
+                            # Write bs=1 data point
+                            record = {
+                                'config': config_name,
+                                'estimated_params_m': estimated_params,
+                                'seq_len': int(seq_len),
+                                'batch_size': 1,
+                                'model_type': 'baseline',
+                                'latency_ms': sla_data['bs1_latency'],
+                                'throughput': sla_data['bs1_throughput'],
+                                'memory_mb': None,  # Not available in aggregated data
+                            }
+                            f.write(json.dumps(record) + '\n')
+
+                            # Write best batch size data if different and SLA met
+                            if sla_data['sla_met'] and sla_data['max_batch_size'] > 1:
+                                record = {
+                                    'config': config_name,
+                                    'estimated_params_m': estimated_params,
+                                    'seq_len': int(seq_len),
+                                    'batch_size': sla_data['max_batch_size'],
+                                    'model_type': 'baseline',
+                                    'latency_ms': sla_data['latency_ms'],
+                                    'throughput': sla_data['max_throughput'],
+                                    'memory_mb': None,
+                                    'sla_target_ms': sla_ms,
+                                }
+                                f.write(json.dumps(record) + '\n')
+
+                # Process optimized results
+                for seq_len, seq_data in config_results.get('optimized', {}).items():
+                    for sla_ms, sla_data in seq_data.items():
+                        if isinstance(sla_data, dict) and 'bs1_throughput' in sla_data:
+                            # Write bs=1 data point
+                            record = {
+                                'config': config_name,
+                                'estimated_params_m': estimated_params,
+                                'seq_len': int(seq_len),
+                                'batch_size': 1,
+                                'model_type': 'optimized',
+                                'latency_ms': sla_data['bs1_latency'],
+                                'throughput': sla_data['bs1_throughput'],
+                                'memory_mb': None,
+                            }
+                            f.write(json.dumps(record) + '\n')
+
+                            # Write best batch size data if different and SLA met
+                            if sla_data['sla_met'] and sla_data['max_batch_size'] > 1:
+                                record = {
+                                    'config': config_name,
+                                    'estimated_params_m': estimated_params,
+                                    'seq_len': int(seq_len),
+                                    'batch_size': sla_data['max_batch_size'],
+                                    'model_type': 'optimized',
+                                    'latency_ms': sla_data['latency_ms'],
+                                    'throughput': sla_data['max_throughput'],
+                                    'memory_mb': None,
+                                    'sla_target_ms': sla_ms,
+                                }
+                                f.write(json.dumps(record) + '\n')
+
+    print(f"Raw data points saved to {jsonl_file}")
 
 
 def print_summary(all_results: Dict):
@@ -712,6 +814,7 @@ def main():
 
     # Save results
     save_results(all_results, args.output)
+    save_raw_results_jsonl(all_results, args.output)
 
     # Print summary
     print_summary(all_results)
