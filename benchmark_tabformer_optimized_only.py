@@ -167,8 +167,8 @@ class TabFormerNative(nn.Module):
         ])
 
         # Field transformer (bidirectional attention across fields)
-        from models.hierarchical import NativeTransformerEncoder
-        self.field_transformer = NativeTransformerEncoder(
+        from models.hierarchical import NativeFieldTransformerEncoder
+        self.field_transformer = NativeFieldTransformerEncoder(
             d_model=config.field_hidden_size,
             nhead=config.field_nhead,
             num_layers=config.field_num_layers,
