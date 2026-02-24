@@ -679,6 +679,9 @@ def save_to_xlsx(all_results: Dict, xlsx_file: str, append: bool = True):
 
 
 def main():
+    import pandas as pd
+    import os
+
     parser = argparse.ArgumentParser(description='TabFormer Baseline-Only Benchmark Sweep')
     parser.add_argument('--output', type=str, default='bf16_baseline_results.json',
                         help='Output JSON file for results')
@@ -694,17 +697,45 @@ def main():
     print("Testing baseline performance without torch.compile optimization")
     print(f"Will append results to: {args.xlsx}")
 
-    # Get model configs
-    configs = get_model_configs()
+    # Read xlsx to determine which configs to run
+    if not os.path.exists(args.xlsx):
+        print(f"ERROR: {args.xlsx} not found!")
+        print("Please provide the optimized results xlsx file")
+        return
 
-    # Test configurations - same as optimized
-    seq_lengths = [32, 64, 128, 256, 512, 1024]
+    print(f"\nReading configurations from {args.xlsx}...")
+    df = pd.read_excel(args.xlsx)
+
+    # Extract unique (config, seq_len) combinations
+    config_seq_combinations = df[['config', 'seq_len']].drop_duplicates()
+
+    # Group by config to get seq_lengths for each
+    configs_to_run = {}
+    for config_name in config_seq_combinations['config'].unique():
+        seq_lengths = sorted(config_seq_combinations[config_seq_combinations['config'] == config_name]['seq_len'].tolist())
+        configs_to_run[config_name] = seq_lengths
+
+    print("\n=== Configurations to benchmark (from xlsx) ===")
+    for config_name, seq_lengths in sorted(configs_to_run.items()):
+        print(f"  {config_name}: seq_lengths = {seq_lengths}")
+    print("="*50)
+
+    # Get model configs
+    model_configs = get_model_configs()
+
+    # SLA targets
     sla_targets_ms = [5.0, 10.0, 15.0]
 
-    # Run sweep for each model
+    # Run sweep for each model found in xlsx
     all_results = {}
-    for config_name in ['20M', '120M', '720M']:
-        config = configs[config_name]
+    for config_name in sorted(configs_to_run.keys()):
+        if config_name not in model_configs:
+            print(f"WARNING: Config {config_name} not found in model_configs, skipping")
+            continue
+
+        config = model_configs[config_name]
+        seq_lengths = configs_to_run[config_name]
+
         results = run_sweep(
             config_name,
             config,
