@@ -1,0 +1,892 @@
+==========================================
+TabFormer Optimized-Only Benchmark
+Started at: Tue Feb 24 17:28:08 UTC 2026
+Log file: /workspace/benchmark_20260224_172808.log
+==========================================
+Installing dependencies...
+Get:1 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:4 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [62.6 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+Get:6 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+Get:7 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3764 kB]
+Get:8 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+Get:10 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1301 kB]
+Get:11 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [6609 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [6835 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1613 kB]
+Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [70.9 kB]
+Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [4100 kB]
+Get:17 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [83.9 kB]
+Get:18 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [37.2 kB]
+Fetched 44.8 MB in 4s (11.0 MB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+wget is already the newest version (1.21.2-2ubuntu1.1).
+The following additional packages will be installed:
+  libevent-core-2.1-7 libutempter0
+Suggested packages:
+  gettext-base git-daemon-run | git-daemon-sysvinit git-doc git-email git-gui
+  gitk gitweb git-cvs git-mediawiki git-svn
+The following NEW packages will be installed:
+  libevent-core-2.1-7 libutempter0 tmux
+The following packages will be upgraded:
+  git
+1 upgraded, 3 newly installed, 0 to remove and 120 not upgraded.
+Need to get 3697 kB of archives.
+After this operation, 1365 kB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 git amd64 1:2.34.1-1ubuntu1.15 [3166 kB]
+Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libevent-core-2.1-7 amd64 2.1.12-stable-1build3 [93.9 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 libutempter0 amd64 1.2.1-2build2 [8848 B]
+Get:4 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 tmux amd64 3.2a-4ubuntu0.2 [428 kB]
+debconf: unable to initialize frontend: Dialog
+debconf: (TERM is not set, so the dialog frontend is not usable.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Teletype
+dpkg-preconfigure: unable to re-open stdin: 
+Fetched 3697 kB in 1s (2958 kB/s)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 23393 files and directories currently installed.)
+Preparing to unpack .../git_1%3a2.34.1-1ubuntu1.15_amd64.deb ...
+Unpacking git (1:2.34.1-1ubuntu1.15) over (1:2.34.1-1ubuntu1.11) ...
+Selecting previously unselected package libevent-core-2.1-7:amd64.
+Preparing to unpack .../libevent-core-2.1-7_2.1.12-stable-1build3_amd64.deb ...
+Unpacking libevent-core-2.1-7:amd64 (2.1.12-stable-1build3) ...
+Selecting previously unselected package libutempter0:amd64.
+Preparing to unpack .../libutempter0_1.2.1-2build2_amd64.deb ...
+Unpacking libutempter0:amd64 (1.2.1-2build2) ...
+Selecting previously unselected package tmux.
+Preparing to unpack .../tmux_3.2a-4ubuntu0.2_amd64.deb ...
+Unpacking tmux (3.2a-4ubuntu0.2) ...
+Setting up libevent-core-2.1-7:amd64 (2.1.12-stable-1build3) ...
+Setting up git (1:2.34.1-1ubuntu1.15) ...
+Setting up libutempter0:amd64 (1.2.1-2build2) ...
+Setting up tmux (3.2a-4ubuntu0.2) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.8) ...
+Looking in indexes: https://pypi.org/simple, https://pypi.ngc.nvidia.com
+Collecting transformers
+  Downloading transformers-5.2.0-py3-none-any.whl.metadata (32 kB)
+Requirement already satisfied: scikit-learn in /usr/local/lib/python3.10/dist-packages (1.5.1)
+Requirement already satisfied: pandas in /usr/local/lib/python3.10/dist-packages (2.2.2)
+Requirement already satisfied: tqdm in /usr/local/lib/python3.10/dist-packages (4.66.5)
+Collecting huggingface-hub<2.0,>=1.3.0 (from transformers)
+  Downloading huggingface_hub-1.4.1-py3-none-any.whl.metadata (13 kB)
+Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.10/dist-packages (from transformers) (1.24.4)
+Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.10/dist-packages (from transformers) (23.2)
+Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib/python3.10/dist-packages (from transformers) (6.0.2)
+Requirement already satisfied: regex!=2019.12.17 in /usr/local/lib/python3.10/dist-packages (from transformers) (2024.7.24)
+Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers)
+  Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+Collecting typer-slim (from transformers)
+  Downloading typer_slim-0.24.0-py3-none-any.whl.metadata (4.2 kB)
+Collecting safetensors>=0.4.3 (from transformers)
+  Downloading safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+Requirement already satisfied: scipy>=1.6.0 in /usr/local/lib/python3.10/dist-packages (from scikit-learn) (1.14.0)
+Requirement already satisfied: joblib>=1.2.0 in /usr/local/lib/python3.10/dist-packages (from scikit-learn) (1.4.2)
+Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.10/dist-packages (from scikit-learn) (3.5.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.10/dist-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.10/dist-packages (from pandas) (2023.4)
+Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.10/dist-packages (from pandas) (2024.1)
+Requirement already satisfied: filelock in /usr/local/lib/python3.10/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (3.15.4)
+Requirement already satisfied: fsspec>=2023.5.0 in /usr/local/lib/python3.10/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (2024.6.1)
+Collecting hf-xet<2.0.0,>=1.2.0 (from huggingface-hub<2.0,>=1.3.0->transformers)
+  Downloading hf_xet-1.3.0-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.10/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (0.27.0)
+Requirement already satisfied: shellingham in /usr/local/lib/python3.10/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (1.5.4)
+Requirement already satisfied: typing-extensions>=4.1.0 in /usr/local/lib/python3.10/dist-packages (from huggingface-hub<2.0,>=1.3.0->transformers) (4.12.2)
+Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.10/dist-packages (from python-dateutil>=2.8.2->pandas) (1.16.0)
+Collecting typer>=0.24.0 (from typer-slim->transformers)
+  Downloading typer-0.24.1-py3-none-any.whl.metadata (16 kB)
+Requirement already satisfied: anyio in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (4.4.0)
+Requirement already satisfied: certifi in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (2024.7.4)
+Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (1.0.5)
+Requirement already satisfied: idna in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (3.7)
+Requirement already satisfied: sniffio in /usr/local/lib/python3.10/dist-packages (from httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (1.3.1)
+Requirement already satisfied: h11<0.15,>=0.13 in /usr/local/lib/python3.10/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (0.14.0)
+Collecting click>=8.2.1 (from typer>=0.24.0->typer-slim->transformers)
+  Downloading click-8.3.1-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: rich>=12.3.0 in /usr/local/lib/python3.10/dist-packages (from typer>=0.24.0->typer-slim->transformers) (13.7.1)
+Collecting annotated-doc>=0.0.2 (from typer>=0.24.0->typer-slim->transformers)
+  Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
+Requirement already satisfied: markdown-it-py>=2.2.0 in /usr/local/lib/python3.10/dist-packages (from rich>=12.3.0->typer>=0.24.0->typer-slim->transformers) (3.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /usr/local/lib/python3.10/dist-packages (from rich>=12.3.0->typer>=0.24.0->typer-slim->transformers) (2.18.0)
+Requirement already satisfied: exceptiongroup>=1.0.2 in /usr/local/lib/python3.10/dist-packages (from anyio->httpx<1,>=0.23.0->huggingface-hub<2.0,>=1.3.0->transformers) (1.2.2)
+Requirement already satisfied: mdurl~=0.1 in /usr/local/lib/python3.10/dist-packages (from markdown-it-py>=2.2.0->rich>=12.3.0->typer>=0.24.0->typer-slim->transformers) (0.1.2)
+Downloading transformers-5.2.0-py3-none-any.whl (10.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.4/10.4 MB 107.5 MB/s eta 0:00:00
+Downloading huggingface_hub-1.4.1-py3-none-any.whl (553 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 553.3/553.3 kB 565.1 MB/s eta 0:00:00
+Downloading safetensors-0.7.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (507 kB)
+Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 136.1 MB/s eta 0:00:00
+Downloading typer_slim-0.24.0-py3-none-any.whl (3.4 kB)
+Downloading hf_xet-1.3.0-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 156.8 MB/s eta 0:00:00
+Downloading typer-0.24.1-py3-none-any.whl (56 kB)
+Downloading annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+Downloading click-8.3.1-py3-none-any.whl (108 kB)
+Installing collected packages: safetensors, hf-xet, click, annotated-doc, typer, typer-slim, huggingface-hub, tokenizers, transformers
+  Attempting uninstall: click
+    Found existing installation: click 8.1.7
+    Uninstalling click-8.1.7:
+      Successfully uninstalled click-8.1.7
+  Attempting uninstall: typer
+    Found existing installation: typer 0.12.4
+    Uninstalling typer-0.12.4:
+      Successfully uninstalled typer-0.12.4
+Successfully installed annotated-doc-0.0.4 click-8.3.1 hf-xet-1.3.0 huggingface-hub-1.4.1 safetensors-0.7.0 tokenizers-0.22.2 transformers-5.2.0 typer-0.24.1 typer-slim-0.24.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 24.2 -> 26.0.1
+[notice] To update, run: python -m pip install --upgrade pip
+Cloning TabFormer repository...
+TabFormer directory exists, pulling latest...
+From https://github.com/tianxiao-commits/TabFormer
+ * branch            main       -> FETCH_HEAD
+   112276f..a58a341  main       -> origin/main
+Updating 112276f..a58a341
+Fast-forward
+ benchmark-pod-optimized-fp32.yaml     | 18 ++++++++----
+ benchmark-pod-optimized.yaml          | 18 ++++++++----
+ benchmark_tabformer_optimized_only.py | 55 ++++++++++++++++++++++++++++-------
+ 3 files changed, 68 insertions(+), 23 deletions(-)
+==========================================
+TabFormer Optimized Benchmark - BF16
+==========================================
+GPU: NVIDIA A100
+Configs: 20M, 120M, 720M
+Sequence lengths: 32, 64, 128, 256, 512, 1024
+
+Batch size strategy: Binary search with seq_len scaling
+Base max batch sizes at seq=32:
+  20M: 256
+  120M: 64
+  720M: 16
+For every 2x increase in seq_len, max_batch divides by 2
+  e.g. 20M: seq=32→256, seq=64→128, seq=128→64, seq=256→32...
+
+  - Always measure batch_size=1 first
+  - Binary search for each SLA separately
+Warmup iterations: 20 (for CUDA graph capture)
+Benchmark iterations: 50 (mean, median, std)
+SLA targets: 5ms, 10ms, 15ms
+Precision: BF16
+Optimization: torch.compile(fullgraph=True, mode='reduce-overhead')
+Per-config recompilation: Enabled
+==========================================
+Running BF16 optimized benchmark...
+Running optimized benchmark sweep on cuda
+Precision: BF16
+Using torch.compile(fullgraph=True, mode='reduce-overhead')
+Binary search for batch sizes up to 128
+Per-config recompilation for CUDA graph capture enabled
+
+Max batch size configuration (scales with sequence length):
+  20M (base=256 at seq=32):
+    seq=32: max_bs=256
+    seq=64: max_bs=128
+    seq=128: max_bs=64
+    seq=256: max_bs=32
+    seq=512: max_bs=16
+    seq=1024: max_bs=8
+  120M (base=64 at seq=32):
+    seq=32: max_bs=64
+    seq=64: max_bs=32
+    seq=128: max_bs=16
+    seq=256: max_bs=8
+    seq=512: max_bs=4
+    seq=1024: max_bs=2
+  720M (base=16 at seq=32):
+    seq=32: max_bs=16
+    seq=64: max_bs=8
+    seq=128: max_bs=4
+    seq=256: max_bs=2
+    seq=512: max_bs=1
+    seq=1024: max_bs=1
+
+
+================================================================================
+Running optimized sweep for 20M TabFormer
+Estimated params: 13.3M
+================================================================================
+Running with max SLA: 15.0ms, will extract results for all SLA targets
+
+--- Sequence Length: 32 ---
+  Max batch size for this sequence length: 256
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 0.73ms (median: 0.73ms, std: 0.01ms), 1363.9 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=129...
+        bs=129: 10.60ms (median: 10.59ms, std: 0.06ms), 12170.7 seq/s
+      Testing bs=65...
+        bs=65: 5.75ms (median: 5.73ms, std: 0.06ms), 11304.8 seq/s
+      Testing bs=33...
+        bs=33: 3.25ms (median: 3.24ms, std: 0.02ms), 10157.1 seq/s
+      Testing bs=49...
+        bs=49: 4.74ms (median: 4.49ms, std: 0.45ms), 10337.7 seq/s
+      Testing bs=57...
+        bs=57: 5.52ms (median: 5.14ms, std: 0.54ms), 10322.4 seq/s
+      Testing bs=53...
+        bs=53: 5.31ms (median: 4.96ms, std: 0.55ms), 9978.8 seq/s
+      Testing bs=51...
+        bs=51: 5.11ms (median: 4.65ms, std: 0.54ms), 9978.9 seq/s
+      Testing bs=50...
+        bs=50: 4.99ms (median: 4.84ms, std: 0.37ms), 10019.7 seq/s
+      Best: bs=50, 4.99ms, 10019.7 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=97...
+        bs=97: 8.47ms (median: 8.31ms, std: 0.31ms), 11448.6 seq/s
+      Testing bs=113...
+        bs=113: 9.50ms (median: 9.52ms, std: 0.10ms), 11891.8 seq/s
+      Testing bs=121...
+        bs=121: 10.06ms (median: 10.01ms, std: 0.11ms), 12033.6 seq/s
+      Testing bs=117...
+        bs=117: 9.73ms (median: 9.70ms, std: 0.07ms), 12029.7 seq/s
+      Testing bs=119...
+        bs=119: 9.87ms (median: 9.83ms, std: 0.09ms), 12052.4 seq/s
+      Testing bs=120...
+        bs=120: 9.93ms (median: 9.91ms, std: 0.07ms), 12083.2 seq/s
+      Best: bs=120, 9.93ms, 12083.2 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=193...
+        bs=193: 15.63ms (median: 15.58ms, std: 0.12ms), 12345.6 seq/s
+      Testing bs=161...
+        bs=161: 13.29ms (median: 13.28ms, std: 0.08ms), 12112.4 seq/s
+      Testing bs=177...
+        bs=177: 14.40ms (median: 14.37ms, std: 0.08ms), 12291.8 seq/s
+      Testing bs=185...
+        bs=185: 15.00ms (median: 14.93ms, std: 0.14ms), 12332.7 seq/s
+      Testing bs=181...
+        bs=181: 14.87ms (median: 14.86ms, std: 0.11ms), 12174.0 seq/s
+      Testing bs=183...
+        bs=183: 14.87ms (median: 14.84ms, std: 0.09ms), 12308.4 seq/s
+      Testing bs=184...
+        bs=184: 14.96ms (median: 14.92ms, std: 0.10ms), 12303.0 seq/s
+      Best: bs=184, 14.96ms, 12303.0 seq/s
+
+  Summary for seq_len=32:
+    SLA 5.0ms: bs=50, 4.99ms (median: 4.84ms), 10019.7 seq/s ✓
+    SLA 10.0ms: bs=120, 9.93ms (median: 9.91ms), 12083.2 seq/s ✓
+    SLA 15.0ms: bs=184, 14.96ms (median: 14.92ms), 12303.0 seq/s ✓
+
+--- Sequence Length: 64 ---
+  Max batch size for this sequence length: 128
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 0.86ms (median: 0.85ms, std: 0.01ms), 1166.3 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=65...
+        bs=65: 10.63ms (median: 10.58ms, std: 0.11ms), 6111.9 seq/s
+      Testing bs=33...
+        bs=33: 5.78ms (median: 5.75ms, std: 0.10ms), 5705.7 seq/s
+      Testing bs=17...
+        bs=17: 3.31ms (median: 3.30ms, std: 0.05ms), 5134.9 seq/s
+      Testing bs=25...
+        bs=25: 4.93ms (median: 4.58ms, std: 0.50ms), 5076.0 seq/s
+      Testing bs=29...
+        bs=29: 5.42ms (median: 5.16ms, std: 0.49ms), 5353.6 seq/s
+      Testing bs=27...
+        bs=27: 5.37ms (median: 4.91ms, std: 0.55ms), 5023.6 seq/s
+      Testing bs=26...
+        bs=26: 5.27ms (median: 4.80ms, std: 0.55ms), 4931.8 seq/s
+      Best: bs=25, 4.93ms, 5076.0 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=49...
+        bs=49: 8.62ms (median: 8.32ms, std: 0.70ms), 5687.1 seq/s
+      Testing bs=57...
+        bs=57: 9.45ms (median: 9.43ms, std: 0.07ms), 6030.9 seq/s
+      Testing bs=61...
+        bs=61: 10.00ms (median: 9.98ms, std: 0.07ms), 6100.7 seq/s
+      Testing bs=63...
+        bs=63: 10.37ms (median: 10.32ms, std: 0.12ms), 6076.9 seq/s
+      Testing bs=62...
+        bs=62: 10.38ms (median: 10.19ms, std: 0.57ms), 5972.5 seq/s
+      Best: bs=61, 10.00ms, 6100.7 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=97...
+        bs=97: 15.63ms (median: 15.65ms, std: 0.11ms), 6205.0 seq/s
+      Testing bs=81...
+        bs=81: 13.20ms (median: 13.15ms, std: 0.10ms), 6137.9 seq/s
+      Testing bs=89...
+        bs=89: 14.42ms (median: 14.40ms, std: 0.09ms), 6172.1 seq/s
+      Testing bs=93...
+        bs=93: 15.14ms (median: 15.15ms, std: 0.10ms), 6141.2 seq/s
+      Testing bs=91...
+        bs=91: 14.69ms (median: 14.63ms, std: 0.12ms), 6196.7 seq/s
+      Testing bs=92...
+        bs=92: 14.83ms (median: 14.79ms, std: 0.10ms), 6205.0 seq/s
+      Best: bs=92, 14.83ms, 6205.0 seq/s
+
+  Summary for seq_len=64:
+    SLA 5.0ms: bs=25, 4.93ms (median: 4.58ms), 5076.0 seq/s ✓
+    SLA 10.0ms: bs=61, 10.00ms (median: 9.98ms), 6100.7 seq/s ✓
+    SLA 15.0ms: bs=92, 14.83ms (median: 14.79ms), 6205.0 seq/s ✓
+
+--- Sequence Length: 128 ---
+  Max batch size for this sequence length: 64
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 1.19ms (median: 1.18ms, std: 0.02ms), 842.5 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=33...
+        bs=33: 10.96ms (median: 10.98ms, std: 0.09ms), 3012.0 seq/s
+      Testing bs=17...
+        bs=17: 6.44ms (median: 5.93ms, std: 0.64ms), 2640.6 seq/s
+      Testing bs=9...
+        bs=9: 3.62ms (median: 3.48ms, std: 0.31ms), 2488.0 seq/s
+      Testing bs=13...
+        bs=13: 4.99ms (median: 5.01ms, std: 0.10ms), 2603.6 seq/s
+      Testing bs=15...
+        bs=15: 5.43ms (median: 5.25ms, std: 0.43ms), 2761.0 seq/s
+      Testing bs=14...
+        bs=14: 5.47ms (median: 5.01ms, std: 0.56ms), 2557.2 seq/s
+      Best: bs=13, 4.99ms, 2603.6 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=25...
+        bs=25: 8.49ms (median: 8.30ms, std: 0.55ms), 2944.5 seq/s
+      Testing bs=29...
+        bs=29: 9.92ms (median: 9.81ms, std: 0.52ms), 2923.4 seq/s
+      Testing bs=31...
+        bs=31: 10.26ms (median: 10.17ms, std: 0.37ms), 3021.4 seq/s
+      Testing bs=30...
+        bs=30: 9.86ms (median: 9.81ms, std: 0.11ms), 3042.0 seq/s
+      Best: bs=30, 9.86ms, 3042.0 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=49...
+        bs=49: 15.74ms (median: 15.74ms, std: 0.10ms), 3113.4 seq/s
+      Testing bs=41...
+        bs=41: 13.48ms (median: 13.51ms, std: 0.11ms), 3041.1 seq/s
+      Testing bs=45...
+        bs=45: 14.50ms (median: 14.46ms, std: 0.10ms), 3103.1 seq/s
+      Testing bs=47...
+        bs=47: 15.08ms (median: 15.05ms, std: 0.09ms), 3116.2 seq/s
+      Testing bs=46...
+        bs=46: 14.78ms (median: 14.74ms, std: 0.10ms), 3112.1 seq/s
+      Best: bs=46, 14.78ms, 3112.1 seq/s
+
+  Summary for seq_len=128:
+    SLA 5.0ms: bs=13, 4.99ms (median: 5.01ms), 2603.6 seq/s ✓
+    SLA 10.0ms: bs=30, 9.86ms (median: 9.81ms), 3042.0 seq/s ✓
+    SLA 15.0ms: bs=46, 14.78ms (median: 14.74ms), 3112.1 seq/s ✓
+
+--- Sequence Length: 256 ---
+  Max batch size for this sequence length: 32
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 1.58ms (median: 1.58ms, std: 0.02ms), 633.4 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=17...
+        bs=17: 11.36ms (median: 11.38ms, std: 0.11ms), 1495.9 seq/s
+      Testing bs=9...
+        bs=9: 6.66ms (median: 6.21ms, std: 0.66ms), 1352.3 seq/s
+      Testing bs=5...
+        bs=5: 4.12ms (median: 3.74ms, std: 0.46ms), 1214.9 seq/s
+      Testing bs=7...
+        bs=7: 5.23ms (median: 5.00ms, std: 0.45ms), 1339.2 seq/s
+      Testing bs=6...
+        bs=6: 5.05ms (median: 5.36ms, std: 0.48ms), 1189.1 seq/s
+      Best: bs=5, 4.12ms, 1214.9 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=13...
+        bs=13: 9.00ms (median: 8.72ms, std: 0.69ms), 1444.6 seq/s
+      Testing bs=15...
+        bs=15: 9.87ms (median: 9.84ms, std: 0.08ms), 1519.6 seq/s
+      Testing bs=16...
+        bs=16: 10.61ms (median: 10.63ms, std: 0.10ms), 1507.8 seq/s
+      Best: bs=15, 9.87ms, 1519.6 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=25...
+        bs=25: 16.12ms (median: 16.13ms, std: 0.11ms), 1550.9 seq/s
+      Testing bs=21...
+        bs=21: 13.64ms (median: 13.60ms, std: 0.10ms), 1539.1 seq/s
+      Testing bs=23...
+        bs=23: 14.98ms (median: 14.96ms, std: 0.09ms), 1535.5 seq/s
+      Testing bs=24...
+        bs=24: 15.50ms (median: 15.50ms, std: 0.09ms), 1548.3 seq/s
+      Best: bs=23, 14.98ms, 1535.5 seq/s
+
+  Summary for seq_len=256:
+    SLA 5.0ms: bs=5, 4.12ms (median: 3.74ms), 1214.9 seq/s ✓
+    SLA 10.0ms: bs=15, 9.87ms (median: 9.84ms), 1519.6 seq/s ✓
+    SLA 15.0ms: bs=23, 14.98ms (median: 14.96ms), 1535.5 seq/s ✓
+
+--- Sequence Length: 512 ---
+  Max batch size for this sequence length: 16
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 2.26ms (median: 2.37ms, std: 0.21ms), 441.7 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=9...
+        bs=9: 11.81ms (median: 11.83ms, std: 0.15ms), 762.1 seq/s
+      Testing bs=5...
+        bs=5: 6.91ms (median: 6.88ms, std: 0.09ms), 723.1 seq/s
+      Testing bs=3...
+        bs=3: 4.56ms (median: 4.42ms, std: 0.36ms), 658.0 seq/s
+      Testing bs=4...
+        bs=4: 6.02ms (median: 5.67ms, std: 0.57ms), 664.8 seq/s
+      Best: bs=3, 4.56ms, 658.0 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=7...
+        bs=7: 9.24ms (median: 9.21ms, std: 0.08ms), 757.5 seq/s
+      Testing bs=8...
+        bs=8: 10.53ms (median: 10.48ms, std: 0.10ms), 759.8 seq/s
+      Best: bs=7, 9.24ms, 757.5 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=13...
+        bs=13: 16.86ms (median: 16.85ms, std: 0.10ms), 770.9 seq/s
+      Testing bs=11...
+        bs=11: 14.63ms (median: 14.55ms, std: 0.32ms), 752.1 seq/s
+      Testing bs=12...
+        bs=12: 15.48ms (median: 15.46ms, std: 0.11ms), 775.2 seq/s
+      Best: bs=11, 14.63ms, 752.1 seq/s
+
+  Summary for seq_len=512:
+    SLA 5.0ms: bs=3, 4.56ms (median: 4.42ms), 658.0 seq/s ✓
+    SLA 10.0ms: bs=7, 9.24ms (median: 9.21ms), 757.5 seq/s ✓
+    SLA 15.0ms: bs=11, 14.63ms (median: 14.55ms), 752.1 seq/s ✓
+
+--- Sequence Length: 1024 ---
+  Max batch size for this sequence length: 8
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 3.88ms (median: 4.01ms, std: 0.31ms), 257.6 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=5...
+        bs=5: 13.26ms (median: 13.26ms, std: 0.10ms), 377.1 seq/s
+      Testing bs=3...
+        bs=3: 8.19ms (median: 8.14ms, std: 0.10ms), 366.3 seq/s
+      Testing bs=2...
+        bs=2: 5.87ms (median: 5.69ms, std: 0.46ms), 341.0 seq/s
+      Best: bs=1, 3.88ms, 257.6 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=4...
+        bs=4: 10.56ms (median: 10.55ms, std: 0.07ms), 378.7 seq/s
+      Best: bs=3, 8.19ms, 366.3 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=7...
+        bs=7: 18.05ms (median: 18.12ms, std: 0.14ms), 387.8 seq/s
+      Testing bs=6...
+        bs=6: 15.78ms (median: 15.78ms, std: 0.06ms), 380.3 seq/s
+      Best: bs=5, 13.26ms, 377.1 seq/s
+
+  Summary for seq_len=1024:
+    SLA 5.0ms: bs=1, 3.88ms (median: 4.01ms), 257.6 seq/s ✓
+    SLA 10.0ms: bs=3, 8.19ms (median: 8.14ms), 366.3 seq/s ✓
+    SLA 15.0ms: bs=5, 13.26ms (median: 13.26ms), 377.1 seq/s ✓
+
+================================================================================
+Running optimized sweep for 120M TabFormer
+Estimated params: 68.7M
+================================================================================
+Running with max SLA: 15.0ms, will extract results for all SLA targets
+
+--- Sequence Length: 32 ---
+  Max batch size for this sequence length: 64
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 1.52ms (median: 1.51ms, std: 0.04ms), 656.6 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=33...
+        bs=33: 9.16ms (median: 9.11ms, std: 0.13ms), 3601.6 seq/s
+      Testing bs=17...
+        bs=17: 5.43ms (median: 5.20ms, std: 0.48ms), 3133.1 seq/s
+      Testing bs=9...
+        bs=9: 3.82ms (median: 3.87ms, std: 0.25ms), 2356.9 seq/s
+      Testing bs=13...
+        bs=13: 4.90ms (median: 4.60ms, std: 0.51ms), 2651.4 seq/s
+      Testing bs=15...
+        bs=15: 5.01ms (median: 4.82ms, std: 0.46ms), 2996.6 seq/s
+      Testing bs=14...
+        bs=14: 5.14ms (median: 4.73ms, std: 0.62ms), 2721.2 seq/s
+      Best: bs=13, 4.90ms, 2651.4 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=49...
+        bs=49: 13.00ms (median: 12.91ms, std: 0.16ms), 3768.2 seq/s
+      Testing bs=41...
+        bs=41: 10.97ms (median: 10.89ms, std: 0.43ms), 3736.1 seq/s
+      Testing bs=37...
+        bs=37: 10.42ms (median: 10.29ms, std: 0.49ms), 3549.7 seq/s
+      Testing bs=35...
+        bs=35: 9.79ms (median: 9.73ms, std: 0.12ms), 3576.1 seq/s
+      Testing bs=36...
+        bs=36: 10.00ms (median: 9.88ms, std: 0.42ms), 3601.5 seq/s
+      Best: bs=36, 10.00ms, 3601.5 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=57...
+        bs=57: 15.08ms (median: 15.08ms, std: 0.14ms), 3779.0 seq/s
+      Testing bs=53...
+        bs=53: 14.00ms (median: 13.91ms, std: 0.16ms), 3785.8 seq/s
+      Testing bs=55...
+        bs=55: 14.37ms (median: 14.33ms, std: 0.16ms), 3826.3 seq/s
+      Testing bs=56...
+        bs=56: 14.57ms (median: 14.56ms, std: 0.16ms), 3844.4 seq/s
+      Best: bs=56, 14.57ms, 3844.4 seq/s
+
+  Summary for seq_len=32:
+    SLA 5.0ms: bs=13, 4.90ms (median: 4.60ms), 2651.4 seq/s ✓
+    SLA 10.0ms: bs=36, 10.00ms (median: 9.88ms), 3601.5 seq/s ✓
+    SLA 15.0ms: bs=56, 14.57ms (median: 14.56ms), 3844.4 seq/s ✓
+
+--- Sequence Length: 64 ---
+  Max batch size for this sequence length: 32
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 1.80ms (median: 1.81ms, std: 0.06ms), 556.2 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=17...
+        bs=17: 9.58ms (median: 9.52ms, std: 0.12ms), 1774.7 seq/s
+      Testing bs=9...
+        bs=9: 5.41ms (median: 5.38ms, std: 0.11ms), 1663.3 seq/s
+      Testing bs=5...
+        bs=5: 3.93ms (median: 3.98ms, std: 0.24ms), 1270.7 seq/s
+      Testing bs=7...
+        bs=7: 5.31ms (median: 5.80ms, std: 0.60ms), 1317.9 seq/s
+      Testing bs=6...
+        bs=6: 4.56ms (median: 4.42ms, std: 0.39ms), 1315.2 seq/s
+      Best: bs=6, 4.56ms, 1315.2 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=25...
+        bs=25: 13.06ms (median: 13.02ms, std: 0.09ms), 1914.7 seq/s
+      Testing bs=21...
+        bs=21: 11.80ms (median: 11.79ms, std: 0.10ms), 1780.3 seq/s
+      Testing bs=19...
+        bs=19: 10.47ms (median: 10.39ms, std: 0.13ms), 1815.5 seq/s
+      Testing bs=18...
+        bs=18: 9.88ms (median: 9.83ms, std: 0.14ms), 1821.3 seq/s
+      Best: bs=18, 9.88ms, 1821.3 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=29...
+        bs=29: 15.06ms (median: 15.02ms, std: 0.10ms), 1925.6 seq/s
+      Testing bs=27...
+        bs=27: 14.14ms (median: 14.06ms, std: 0.20ms), 1909.7 seq/s
+      Testing bs=28...
+        bs=28: 14.47ms (median: 14.43ms, std: 0.13ms), 1935.7 seq/s
+      Best: bs=28, 14.47ms, 1935.7 seq/s
+
+  Summary for seq_len=64:
+    SLA 5.0ms: bs=6, 4.56ms (median: 4.42ms), 1315.2 seq/s ✓
+    SLA 10.0ms: bs=18, 9.88ms (median: 9.83ms), 1821.3 seq/s ✓
+    SLA 15.0ms: bs=28, 14.47ms (median: 14.43ms), 1935.7 seq/s ✓
+
+--- Sequence Length: 128 ---
+  Max batch size for this sequence length: 16
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 2.41ms (median: 2.40ms, std: 0.03ms), 414.7 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=9...
+        bs=9: 9.96ms (median: 9.86ms, std: 0.18ms), 904.0 seq/s
+      Testing bs=5...
+        bs=5: 6.09ms (median: 5.86ms, std: 0.50ms), 821.7 seq/s
+      Testing bs=3...
+        bs=3: 5.14ms (median: 5.32ms, std: 0.37ms), 583.6 seq/s
+      Testing bs=2...
+        bs=2: 3.65ms (median: 3.64ms, std: 0.06ms), 547.2 seq/s
+      Best: bs=2, 3.65ms, 547.2 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=13...
+        bs=13: 13.67ms (median: 13.62ms, std: 0.12ms), 951.1 seq/s
+      Testing bs=11...
+        bs=11: 11.75ms (median: 11.75ms, std: 0.10ms), 936.4 seq/s
+      Testing bs=10...
+        bs=10: 10.70ms (median: 10.67ms, std: 0.12ms), 934.2 seq/s
+      Best: bs=9, 9.96ms, 904.0 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=15...
+        bs=15: 15.39ms (median: 15.37ms, std: 0.11ms), 974.9 seq/s
+      Testing bs=14...
+        bs=14: 14.55ms (median: 14.60ms, std: 0.15ms), 962.5 seq/s
+      Best: bs=14, 14.55ms, 962.5 seq/s
+
+  Summary for seq_len=128:
+    SLA 5.0ms: bs=2, 3.65ms (median: 3.64ms), 547.2 seq/s ✓
+    SLA 10.0ms: bs=9, 9.96ms (median: 9.86ms), 904.0 seq/s ✓
+    SLA 15.0ms: bs=14, 14.55ms (median: 14.60ms), 962.5 seq/s ✓
+
+--- Sequence Length: 256 ---
+  Max batch size for this sequence length: 8
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 3.45ms (median: 3.65ms, std: 0.32ms), 290.1 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=5...
+        bs=5: 10.72ms (median: 10.68ms, std: 0.10ms), 466.6 seq/s
+      Testing bs=3...
+        bs=3: 7.66ms (median: 7.19ms, std: 0.78ms), 391.9 seq/s
+      Testing bs=2...
+        bs=2: 5.09ms (median: 5.02ms, std: 0.31ms), 392.8 seq/s
+      Best: bs=1, 3.45ms, 290.1 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=4...
+        bs=4: 8.94ms (median: 8.90ms, std: 0.10ms), 447.5 seq/s
+      Best: bs=4, 8.94ms, 447.5 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=7...
+        bs=7: 14.46ms (median: 14.38ms, std: 0.18ms), 484.3 seq/s
+      Testing bs=8...
+        bs=8: 16.51ms (median: 16.50ms, std: 0.15ms), 484.6 seq/s
+      Best: bs=7, 14.46ms, 484.3 seq/s
+
+  Summary for seq_len=256:
+    SLA 5.0ms: bs=1, 3.45ms (median: 3.65ms), 290.1 seq/s ✓
+    SLA 10.0ms: bs=4, 8.94ms (median: 8.90ms), 447.5 seq/s ✓
+    SLA 15.0ms: bs=7, 14.46ms (median: 14.38ms), 484.3 seq/s ✓
+
+--- Sequence Length: 512 ---
+  Max batch size for this sequence length: 4
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 5.66ms (median: 5.13ms, std: 0.65ms), 176.7 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (5.66ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=3...
+        bs=3: 13.05ms (median: 13.07ms, std: 0.14ms), 229.9 seq/s
+      Testing bs=2...
+        bs=2: 8.98ms (median: 8.94ms, std: 0.10ms), 222.8 seq/s
+      Best: bs=2, 8.98ms, 222.8 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=4...
+        bs=4: 16.45ms (median: 16.39ms, std: 0.14ms), 243.2 seq/s
+      Best: bs=3, 13.05ms, 229.9 seq/s
+
+  Summary for seq_len=512:
+    SLA 5.0ms: bs=1, 5.66ms (median: 5.13ms), 176.7 seq/s ✗
+    SLA 10.0ms: bs=2, 8.98ms (median: 8.94ms), 222.8 seq/s ✓
+    SLA 15.0ms: bs=3, 13.05ms (median: 13.07ms), 229.9 seq/s ✓
+
+--- Sequence Length: 1024 ---
+  Max batch size for this sequence length: 2
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 9.10ms (median: 9.00ms, std: 0.41ms), 109.9 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (9.10ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=2...
+        bs=2: 16.86ms (median: 16.85ms, std: 0.09ms), 118.6 seq/s
+      Best: bs=1, 9.10ms, 109.9 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Best: bs=1, 9.10ms, 109.9 seq/s
+
+  Summary for seq_len=1024:
+    SLA 5.0ms: bs=1, 9.10ms (median: 9.00ms), 109.9 seq/s ✗
+    SLA 10.0ms: bs=1, 9.10ms (median: 9.00ms), 109.9 seq/s ✓
+    SLA 15.0ms: bs=1, 9.10ms (median: 9.00ms), 109.9 seq/s ✓
+
+================================================================================
+Running optimized sweep for 720M TabFormer
+Estimated params: 494.9M
+================================================================================
+Running with max SLA: 15.0ms, will extract results for all SLA targets
+
+--- Sequence Length: 32 ---
+  Max batch size for this sequence length: 16
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 3.90ms (median: 3.70ms, std: 0.38ms), 256.6 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      Testing bs=9...
+        bs=9: 14.62ms (median: 14.61ms, std: 0.11ms), 615.4 seq/s
+      Testing bs=5...
+        bs=5: 8.38ms (median: 8.32ms, std: 0.19ms), 596.7 seq/s
+      Testing bs=3...
+        bs=3: 7.18ms (median: 7.14ms, std: 0.13ms), 417.9 seq/s
+      Testing bs=2...
+        bs=2: 5.17ms (median: 4.97ms, std: 0.52ms), 386.7 seq/s
+      Best: bs=1, 3.90ms, 256.6 seq/s
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=7...
+        bs=7: 12.75ms (median: 12.72ms, std: 0.11ms), 549.2 seq/s
+      Testing bs=6...
+        bs=6: 12.42ms (median: 12.32ms, std: 0.25ms), 483.2 seq/s
+      Best: bs=5, 8.38ms, 596.7 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=13...
+        bs=13: 21.15ms (median: 21.17ms, std: 0.16ms), 614.7 seq/s
+      Testing bs=11...
+        bs=11: 19.49ms (median: 19.58ms, std: 0.22ms), 564.3 seq/s
+      Testing bs=10...
+        bs=10: 15.37ms (median: 15.35ms, std: 0.15ms), 650.6 seq/s
+      Best: bs=9, 14.62ms, 615.4 seq/s
+
+  Summary for seq_len=32:
+    SLA 5.0ms: bs=1, 3.90ms (median: 3.70ms), 256.6 seq/s ✓
+    SLA 10.0ms: bs=5, 8.38ms (median: 8.32ms), 596.7 seq/s ✓
+    SLA 15.0ms: bs=9, 14.62ms (median: 14.61ms), 615.4 seq/s ✓
+
+--- Sequence Length: 64 ---
+  Max batch size for this sequence length: 8
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 5.17ms (median: 4.95ms, std: 0.54ms), 193.5 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (5.17ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=5...
+        bs=5: 15.36ms (median: 15.28ms, std: 0.19ms), 325.6 seq/s
+      Testing bs=3...
+        bs=3: 12.18ms (median: 12.12ms, std: 0.18ms), 246.2 seq/s
+      Testing bs=2...
+        bs=2: 7.85ms (median: 7.73ms, std: 0.50ms), 254.9 seq/s
+      Best: bs=2, 7.85ms, 254.9 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=4...
+        bs=4: 14.41ms (median: 14.42ms, std: 0.14ms), 277.5 seq/s
+      Best: bs=4, 14.41ms, 277.5 seq/s
+
+  Summary for seq_len=64:
+    SLA 5.0ms: bs=1, 5.17ms (median: 4.95ms), 193.5 seq/s ✗
+    SLA 10.0ms: bs=2, 7.85ms (median: 7.73ms), 254.9 seq/s ✓
+    SLA 15.0ms: bs=4, 14.41ms (median: 14.42ms), 277.5 seq/s ✓
+
+--- Sequence Length: 128 ---
+  Max batch size for this sequence length: 4
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 8.22ms (median: 7.86ms, std: 0.84ms), 121.7 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (8.22ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      Testing bs=3...
+        bs=3: 19.65ms (median: 19.51ms, std: 0.25ms), 152.7 seq/s
+      Testing bs=2...
+        bs=2: 13.90ms (median: 13.86ms, std: 0.18ms), 143.9 seq/s
+      Best: bs=1, 8.22ms, 121.7 seq/s
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Best: bs=2, 13.90ms, 143.9 seq/s
+
+  Summary for seq_len=128:
+    SLA 5.0ms: bs=1, 8.22ms (median: 7.86ms), 121.7 seq/s ✗
+    SLA 10.0ms: bs=1, 8.22ms (median: 7.86ms), 121.7 seq/s ✓
+    SLA 15.0ms: bs=2, 13.90ms (median: 13.86ms), 143.9 seq/s ✓
+
+--- Sequence Length: 256 ---
+  Max batch size for this sequence length: 2
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 13.79ms (median: 13.76ms, std: 0.11ms), 72.5 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (13.79ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (13.79ms > 10.0ms)
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      Testing bs=2...
+        bs=2: 26.18ms (median: 26.18ms, std: 0.05ms), 76.4 seq/s
+      Best: bs=1, 13.79ms, 72.5 seq/s
+
+  Summary for seq_len=256:
+    SLA 5.0ms: bs=1, 13.79ms (median: 13.76ms), 72.5 seq/s ✗
+    SLA 10.0ms: bs=1, 13.79ms (median: 13.76ms), 72.5 seq/s ✗
+    SLA 15.0ms: bs=1, 13.79ms (median: 13.76ms), 72.5 seq/s ✓
+
+--- Sequence Length: 512 ---
+  Max batch size for this sequence length: 1
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 25.74ms (median: 25.66ms, std: 0.22ms), 38.8 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (25.74ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (25.74ms > 10.0ms)
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (25.74ms > 15.0ms)
+
+  Summary for seq_len=512:
+    SLA 5.0ms: bs=1, 25.74ms (median: 25.66ms), 38.8 seq/s ✗
+    SLA 10.0ms: bs=1, 25.74ms (median: 25.66ms), 38.8 seq/s ✗
+    SLA 15.0ms: bs=1, 25.74ms (median: 25.66ms), 38.8 seq/s ✗
+
+--- Sequence Length: 1024 ---
+  Max batch size for this sequence length: 1
+  Optimized (torch.compile + CUDA graphs, BF16):
+    Measuring batch_size=1 (reference point)...
+      bs=1: 47.41ms (median: 47.29ms, std: 0.29ms), 21.1 seq/s
+
+    Binary search for SLA 5.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (47.41ms > 5.0ms)
+
+    Binary search for SLA 10.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (47.41ms > 10.0ms)
+
+    Binary search for SLA 15.0ms (max_bs=128)...
+      bs=1 already exceeds SLA (47.41ms > 15.0ms)
+
+  Summary for seq_len=1024:
+    SLA 5.0ms: bs=1, 47.41ms (median: 47.29ms), 21.1 seq/s ✗
+    SLA 10.0ms: bs=1, 47.41ms (median: 47.29ms), 21.1 seq/s ✗
+    SLA 15.0ms: bs=1, 47.41ms (median: 47.29ms), 21.1 seq/s ✗
+
+Aggregated results saved to bf16_optimized_results.json
+Raw results saved to bf16_optimized_results_raw.jsonl
+
+================================================================================
+Optimized benchmark sweep complete!
+================================================================================
+==========================================
+Benchmark Complete!
+Finished at: Tue Feb 24 18:48:53 UTC 2026
+Results saved to:
+  JSON: /workspace/bf16_optimized_results.json
+  JSONL: /workspace/bf16_optimized_results_raw.jsonl
+  Log: /workspace/benchmark_20260224_172808.log
+Results are persisted in PVC: tabformer-benchmark-data
+==========================================

@@ -12,6 +12,78 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class RMSNorm(nn.Module):
+    """Root Mean Square Layer Normalization in FP32 for numerical stability."""
+    def __init__(self, dim, eps=1e-6):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(dim))
+
+    def forward(self, x):
+        # Always compute in FP32 for numerical stability
+        input_dtype = x.dtype
+        x = x.float()
+        variance = x.pow(2).mean(-1, keepdim=True)
+        x = x * torch.rsqrt(variance + self.eps)
+        # Convert back to input dtype and apply learnable weight
+        return (self.weight * x).to(input_dtype)
+
+
+class RotaryPositionEmbedding(nn.Module):
+    """
+    Rotary Position Embedding (RoPE) from Su et al. (2021).
+    Cos/sin tables are computed and stored in FP32 for precision.
+    """
+    def __init__(self, dim, max_seq_len=2048, base=10000):
+        super().__init__()
+        self.dim = dim
+        self.max_seq_len = max_seq_len
+        self.base = base
+
+        # Precompute cos/sin tables in FP32
+        inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2).float() / dim))
+        self.register_buffer("inv_freq", inv_freq, persistent=False)
+
+        # Precompute cos/sin for all positions up to max_seq_len
+        t = torch.arange(max_seq_len, dtype=torch.float32)
+        freqs = torch.outer(t, inv_freq)  # (max_seq_len, dim//2)
+        emb = torch.cat([freqs, freqs], dim=-1)  # (max_seq_len, dim)
+
+        # Store in FP32
+        self.register_buffer("cos_cached", emb.cos(), persistent=False)
+        self.register_buffer("sin_cached", emb.sin(), persistent=False)
+
+    def forward(self, q, k):
+        """
+        Apply RoPE to query and key tensors.
+        Args:
+            q: (batch, heads, seq_len, head_dim)
+            k: (batch, heads, seq_len, head_dim)
+        Returns:
+            q_rot, k_rot: Rotated query and key tensors
+        """
+        seq_len = q.shape[2]
+
+        # Get cos/sin for current sequence length (always FP32)
+        cos = self.cos_cached[:seq_len, :self.dim]  # (seq_len, dim)
+        sin = self.sin_cached[:seq_len, :self.dim]  # (seq_len, dim)
+
+        # Reshape for broadcasting: (1, 1, seq_len, dim)
+        cos = cos.unsqueeze(0).unsqueeze(0)
+        sin = sin.unsqueeze(0).unsqueeze(0)
+
+        # Apply rotation (computation in input dtype, but cos/sin are FP32)
+        q_rot = (q * cos) + (self._rotate_half(q) * sin)
+        k_rot = (k * cos) + (self._rotate_half(k) * sin)
+
+        return q_rot, k_rot
+
+    def _rotate_half(self, x):
+        """Rotate half the hidden dims of the input."""
+        x1, x2 = x[..., : x.shape[-1] // 2], x[..., x.shape[-1] // 2 :]
+        return torch.cat([-x2, x1], dim=-1)
+
+
 class NativeBertEmbeddings(nn.Module):
     def __init__(self, config):
         super().__init__()

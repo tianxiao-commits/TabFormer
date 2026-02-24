@@ -1,0 +1,638 @@
+{
+  "20M": {
+    "config_name": "20M",
+    "estimated_params_m": 17.942016,
+    "baseline": {
+      "32": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 64,
+          "max_throughput": 4699.638861979432,
+          "latency_ms": 13.618067659999724
+        }
+      },
+      "64": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 32,
+          "max_throughput": 2366.7695076357877,
+          "latency_ms": 13.520539239989375
+        }
+      },
+      "128": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 16,
+          "max_throughput": 1171.2565365156352,
+          "latency_ms": 13.660542759998862
+        }
+      },
+      "256": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 8,
+          "max_throughput": 580.0180521344395,
+          "latency_ms": 13.792674159985836
+        }
+      },
+      "512": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 4,
+          "max_throughput": 281.1385312083731,
+          "latency_ms": 14.227861199983636
+        }
+      },
+      "1024": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 97.52917082382986,
+          "latency_ms": 10.253342579999298
+        }
+      }
+    },
+    "optimized": {
+      "32": {
+        "5.0": {
+          "max_batch_size": 16,
+          "max_throughput": 4972.062107298012,
+          "latency_ms": 3.217980720014566
+        },
+        "10.0": {
+          "max_batch_size": 48,
+          "max_throughput": 6023.963915787724,
+          "latency_ms": 7.968175220007652
+        },
+        "15.0": {
+          "max_batch_size": 80,
+          "max_throughput": 6309.61434047293,
+          "latency_ms": 12.67906335999669
+        }
+      },
+      "64": {
+        "5.0": {
+          "max_batch_size": 8,
+          "max_throughput": 2482.075382371579,
+          "latency_ms": 3.2231091999938144
+        },
+        "10.0": {
+          "max_batch_size": 16,
+          "max_throughput": 2764.2045257760615,
+          "latency_ms": 5.788283699994281
+        },
+        "15.0": {
+          "max_batch_size": 32,
+          "max_throughput": 3047.3786936038814,
+          "latency_ms": 10.500828160006677
+        }
+      },
+      "128": {
+        "5.0": {
+          "max_batch_size": 4,
+          "max_throughput": 1219.3592398883197,
+          "latency_ms": 3.2804114400005346
+        },
+        "10.0": {
+          "max_batch_size": 8,
+          "max_throughput": 1388.1937508677006,
+          "latency_ms": 5.762884320001831
+        },
+        "15.0": {
+          "max_batch_size": 16,
+          "max_throughput": 1501.5397558162422,
+          "latency_ms": 10.655728520023331
+        }
+      },
+      "256": {
+        "5.0": {
+          "max_batch_size": 2,
+          "max_throughput": 590.0659842462436,
+          "latency_ms": 3.389451440002631
+        },
+        "10.0": {
+          "max_batch_size": 4,
+          "max_throughput": 675.1890764895026,
+          "latency_ms": 5.9242664599923955
+        },
+        "15.0": {
+          "max_batch_size": 8,
+          "max_throughput": 754.0957925904286,
+          "latency_ms": 10.608731779975642
+        }
+      },
+      "512": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 216.66614818422764,
+          "latency_ms": 4.61539566000738
+        },
+        "10.0": {
+          "max_batch_size": 2,
+          "max_throughput": 324.90931845906675,
+          "latency_ms": 6.155563679999432
+        },
+        "15.0": {
+          "max_batch_size": 4,
+          "max_throughput": 362.4629064524412,
+          "latency_ms": 11.035611999996036
+        }
+      },
+      "1024": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 131.90467207131167,
+          "latency_ms": 7.581232600005023
+        },
+        "15.0": {
+          "max_batch_size": 2,
+          "max_throughput": 168.47393230728176,
+          "latency_ms": 11.871272739999768
+        }
+      }
+    }
+  },
+  "120M": {
+    "config_name": "120M",
+    "estimated_params_m": 99.97824,
+    "baseline": {
+      "32": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 16,
+          "max_throughput": 1164.7779459830917,
+          "latency_ms": 13.736523819993636
+        }
+      },
+      "64": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 8,
+          "max_throughput": 586.5817873431469,
+          "latency_ms": 13.638336840008378
+        }
+      },
+      "128": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 4,
+          "max_throughput": 301.42155908186896,
+          "latency_ms": 13.270450900008655
+        }
+      },
+      "256": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 2,
+          "max_throughput": 149.2653132175529,
+          "latency_ms": 13.398960260010426
+        }
+      },
+      "512": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 71.60672435555199,
+          "latency_ms": 13.965168899985656
+        }
+      },
+      "1024": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      }
+    },
+    "optimized": {
+      "32": {
+        "5.0": {
+          "max_batch_size": 4,
+          "max_throughput": 1134.5392649921762,
+          "latency_ms": 3.525660260006589
+        },
+        "10.0": {
+          "max_batch_size": 16,
+          "max_throughput": 1618.46075901204,
+          "latency_ms": 9.885936319992652
+        },
+        "15.0": {
+          "max_batch_size": 16,
+          "max_throughput": 1618.46075901204,
+          "latency_ms": 9.885936319992652
+        }
+      },
+      "64": {
+        "5.0": {
+          "max_batch_size": 2,
+          "max_throughput": 569.9434161300949,
+          "latency_ms": 3.5091202800094834
+        },
+        "10.0": {
+          "max_batch_size": 8,
+          "max_throughput": 819.6492313588188,
+          "latency_ms": 9.760272679982336
+        },
+        "15.0": {
+          "max_batch_size": 8,
+          "max_throughput": 819.6492313588188,
+          "latency_ms": 9.760272679982336
+        }
+      },
+      "128": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 233.97838506797186,
+          "latency_ms": 4.273899059990072
+        },
+        "10.0": {
+          "max_batch_size": 4,
+          "max_throughput": 410.2512280467867,
+          "latency_ms": 9.750123160006297
+        },
+        "15.0": {
+          "max_batch_size": 4,
+          "max_throughput": 410.2512280467867,
+          "latency_ms": 9.750123160006297
+        }
+      },
+      "256": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 153.71546117782088,
+          "latency_ms": 6.505526459977773
+        },
+        "15.0": {
+          "max_batch_size": 2,
+          "max_throughput": 189.67113801505596,
+          "latency_ms": 10.544566879971171
+        }
+      },
+      "512": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 96.03617192399196,
+          "latency_ms": 10.412743240030977
+        }
+      },
+      "1024": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      }
+    }
+  },
+  "720M": {
+    "config_name": "720M",
+    "estimated_params_m": 569.57952,
+    "baseline": {
+      "32": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "64": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "128": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "256": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "512": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "1024": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      }
+    },
+    "optimized": {
+      "32": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 2,
+          "max_throughput": 267.80400169563916,
+          "latency_ms": 7.468148300013127
+        },
+        "15.0": {
+          "max_batch_size": 4,
+          "max_throughput": 371.4329664890965,
+          "latency_ms": 10.76910333998967
+        }
+      },
+      "64": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 129.808182371529,
+          "latency_ms": 7.703674619970116
+        },
+        "15.0": {
+          "max_batch_size": 2,
+          "max_throughput": 184.0210374320727,
+          "latency_ms": 10.868322600008469
+        }
+      },
+      "128": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 98.81182827809657,
+          "latency_ms": 10.120245899970541
+        }
+      },
+      "256": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "512": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      },
+      "1024": {
+        "5.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "10.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        },
+        "15.0": {
+          "max_batch_size": 1,
+          "max_throughput": 0,
+          "latency_ms": Infinity
+        }
+      }
+    }
+  }
+}

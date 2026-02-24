@@ -1,0 +1,1848 @@
+{
+  "20M": {
+    "config_name": "20M",
+    "estimated_params_m": 13.272576,
+    "optimized": {
+      "32": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 0.7331889400393266,
+            "latency_median_ms": 0.7273010003245872,
+            "latency_std_ms": 0.011893080400160174,
+            "throughput": 1363.9049164412686,
+            "memory_mb": 283.060546875
+          },
+          "129": {
+            "batch_size": 129,
+            "latency_ms": 10.599233180000738,
+            "latency_median_ms": 10.585272500065912,
+            "latency_std_ms": 0.055191810303931936,
+            "throughput": 12170.691766967147,
+            "memory_mb": 661.498046875
+          },
+          "65": {
+            "batch_size": 65,
+            "latency_ms": 5.749776320008095,
+            "latency_median_ms": 5.730885500042859,
+            "latency_std_ms": 0.06338252243014282,
+            "throughput": 11304.787592138626,
+            "memory_mb": 472.951171875
+          },
+          "33": {
+            "batch_size": 33,
+            "latency_ms": 3.248948879954696,
+            "latency_median_ms": 3.2419574999948964,
+            "latency_std_ms": 0.022915367821688667,
+            "throughput": 10157.131188983238,
+            "memory_mb": 377.669921875
+          },
+          "49": {
+            "batch_size": 49,
+            "latency_ms": 4.739947980069701,
+            "latency_median_ms": 4.492787500112172,
+            "latency_std_ms": 0.4533820290459477,
+            "throughput": 10337.666195079099,
+            "memory_mb": 152.677734375
+          },
+          "57": {
+            "batch_size": 57,
+            "latency_ms": 5.521960480009511,
+            "latency_median_ms": 5.135998500009009,
+            "latency_std_ms": 0.5367275563300463,
+            "throughput": 10322.420851498347,
+            "memory_mb": 171.673828125
+          },
+          "53": {
+            "batch_size": 53,
+            "latency_ms": 5.311270840011275,
+            "latency_median_ms": 4.960582499961674,
+            "latency_std_ms": 0.5459262925146121,
+            "throughput": 9978.779391315598,
+            "memory_mb": 164.92578125
+          },
+          "51": {
+            "batch_size": 51,
+            "latency_ms": 5.110769880047883,
+            "latency_median_ms": 4.647634000093603,
+            "latency_std_ms": 0.54280277469042,
+            "throughput": 9978.927088676155,
+            "memory_mb": 157.8095703125
+          },
+          "50": {
+            "batch_size": 50,
+            "latency_ms": 4.990178379994177,
+            "latency_median_ms": 4.842516000053365,
+            "latency_std_ms": 0.3714194310720826,
+            "throughput": 10019.681901643435,
+            "memory_mb": 154.97802734375
+          },
+          "97": {
+            "batch_size": 97,
+            "latency_ms": 8.472659979970558,
+            "latency_median_ms": 8.30608349974682,
+            "latency_std_ms": 0.31133947998784167,
+            "throughput": 11448.588781953818,
+            "memory_mb": 264.294921875
+          },
+          "113": {
+            "batch_size": 113,
+            "latency_ms": 9.502372339993599,
+            "latency_median_ms": 9.518928000034066,
+            "latency_std_ms": 0.09681703746323671,
+            "throughput": 11891.7672300006,
+            "memory_mb": 304.505859375
+          },
+          "121": {
+            "batch_size": 121,
+            "latency_ms": 10.055151680026029,
+            "latency_median_ms": 10.006937000071048,
+            "latency_std_ms": 0.10975388792527044,
+            "throughput": 12033.632495107899,
+            "memory_mb": 320.376953125
+          },
+          "117": {
+            "batch_size": 117,
+            "latency_ms": 9.725904379938584,
+            "latency_median_ms": 9.69767349988615,
+            "latency_std_ms": 0.06952123117055964,
+            "throughput": 12029.72961993472,
+            "memory_mb": 309.09765625
+          },
+          "119": {
+            "batch_size": 119,
+            "latency_ms": 9.873585719933544,
+            "latency_median_ms": 9.834943499981819,
+            "latency_std_ms": 0.08518781045556321,
+            "throughput": 12052.359028975034,
+            "memory_mb": 318.4638671875
+          },
+          "120": {
+            "batch_size": 120,
+            "latency_ms": 9.931116559982911,
+            "latency_median_ms": 9.90548250001666,
+            "latency_std_ms": 0.07386149307636534,
+            "throughput": 12083.233468785958,
+            "memory_mb": 319.12353515625
+          },
+          "193": {
+            "batch_size": 193,
+            "latency_ms": 15.633159520002664,
+            "latency_median_ms": 15.578289000131917,
+            "latency_std_ms": 0.11736117894986711,
+            "throughput": 12345.553037634909,
+            "memory_mb": 485.2646484375
+          },
+          "161": {
+            "batch_size": 161,
+            "latency_ms": 13.292121380009121,
+            "latency_median_ms": 13.279702499858104,
+            "latency_std_ms": 0.08265633999304822,
+            "throughput": 12112.43829311838,
+            "memory_mb": 410.6552734375
+          },
+          "177": {
+            "batch_size": 177,
+            "latency_ms": 14.399794279988782,
+            "latency_median_ms": 14.366534499913541,
+            "latency_std_ms": 0.08332762156967286,
+            "throughput": 12291.842269300661,
+            "memory_mb": 447.1162109375
+          },
+          "185": {
+            "batch_size": 185,
+            "latency_ms": 15.00078674002907,
+            "latency_median_ms": 14.934156999970583,
+            "latency_std_ms": 0.13633347210723612,
+            "throughput": 12332.68649212471,
+            "memory_mb": 466.1123046875
+          },
+          "181": {
+            "batch_size": 181,
+            "latency_ms": 14.867702740039022,
+            "latency_median_ms": 14.864881499988769,
+            "latency_std_ms": 0.11118444395678748,
+            "throughput": 12174.03947097781,
+            "memory_mb": 459.3642578125
+          },
+          "183": {
+            "batch_size": 183,
+            "latency_ms": 14.86786417998701,
+            "latency_median_ms": 14.837828999816338,
+            "latency_std_ms": 0.092254149589088,
+            "throughput": 12308.425593928172,
+            "memory_mb": 460.91796875
+          },
+          "184": {
+            "batch_size": 184,
+            "latency_ms": 14.955710760004877,
+            "latency_median_ms": 14.916499499804559,
+            "latency_std_ms": 0.09769470698132698,
+            "throughput": 12302.992679696623,
+            "memory_mb": 463.21826171875
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 50,
+            "latency_ms": 4.990178379994177,
+            "latency_median_ms": 4.842516000053365,
+            "latency_std_ms": 0.3714194310720826,
+            "throughput": 10019.681901643435
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 120,
+            "latency_ms": 9.931116559982911,
+            "latency_median_ms": 9.90548250001666,
+            "latency_std_ms": 0.07386149307636534,
+            "throughput": 12083.233468785958
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 184,
+            "latency_ms": 14.955710760004877,
+            "latency_median_ms": 14.916499499804559,
+            "latency_std_ms": 0.09769470698132698,
+            "throughput": 12302.992679696623
+          }
+        }
+      },
+      "64": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 0.8574266599771363,
+            "latency_median_ms": 0.8528680000381428,
+            "latency_std_ms": 0.013200466522932882,
+            "throughput": 1166.2805073341965,
+            "memory_mb": 286.56396484375
+          },
+          "65": {
+            "batch_size": 65,
+            "latency_ms": 10.634929300022122,
+            "latency_median_ms": 10.576657999990857,
+            "latency_std_ms": 0.1114214679855932,
+            "throughput": 6111.9353186358085,
+            "memory_mb": 665.82958984375
+          },
+          "33": {
+            "batch_size": 33,
+            "latency_ms": 5.783691800015731,
+            "latency_median_ms": 5.746281999790881,
+            "latency_std_ms": 0.10448299717204136,
+            "throughput": 5705.698218551383,
+            "memory_mb": 475.57958984375
+          },
+          "17": {
+            "batch_size": 17,
+            "latency_ms": 3.310654800025077,
+            "latency_median_ms": 3.2970145000490447,
+            "latency_std_ms": 0.05112425457431229,
+            "throughput": 5134.935844072668,
+            "memory_mb": 381.47021484375
+          },
+          "25": {
+            "batch_size": 25,
+            "latency_ms": 4.925089940015823,
+            "latency_median_ms": 4.57854999990559,
+            "latency_std_ms": 0.50485900368647,
+            "throughput": 5076.049433509366,
+            "memory_mb": 154.97802734375
+          },
+          "29": {
+            "batch_size": 29,
+            "latency_ms": 5.416899240017301,
+            "latency_median_ms": 5.162312500033295,
+            "latency_std_ms": 0.48532301746353035,
+            "throughput": 5353.616287665594,
+            "memory_mb": 178.22412109375
+          },
+          "27": {
+            "batch_size": 27,
+            "latency_ms": 5.3746310800124775,
+            "latency_median_ms": 4.905179499928636,
+            "latency_std_ms": 0.5475059089129174,
+            "throughput": 5023.600615195586,
+            "memory_mb": 166.14794921875
+          },
+          "26": {
+            "batch_size": 26,
+            "latency_ms": 5.271958259972962,
+            "latency_median_ms": 4.799198999762666,
+            "latency_std_ms": 0.5491831050816063,
+            "throughput": 4931.753765465765,
+            "memory_mb": 164.26611328125
+          },
+          "49": {
+            "batch_size": 49,
+            "latency_ms": 8.616063280014714,
+            "latency_median_ms": 8.317050499954348,
+            "latency_std_ms": 0.6962937423424062,
+            "throughput": 5687.052010592513,
+            "memory_mb": 265.39208984375
+          },
+          "57": {
+            "batch_size": 57,
+            "latency_ms": 9.451378859967008,
+            "latency_median_ms": 9.432909499764719,
+            "latency_std_ms": 0.07379146140740891,
+            "throughput": 6030.866061399106,
+            "memory_mb": 305.16552734375
+          },
+          "61": {
+            "batch_size": 61,
+            "latency_ms": 9.998848840023129,
+            "latency_median_ms": 9.975809500247124,
+            "latency_std_ms": 0.07180030021973546,
+            "throughput": 6100.702288430525,
+            "memory_mb": 320.59912109375
+          },
+          "63": {
+            "batch_size": 63,
+            "latency_ms": 10.367115339968223,
+            "latency_median_ms": 10.317442499854224,
+            "latency_std_ms": 0.11795149056763335,
+            "throughput": 6076.907407127691,
+            "memory_mb": 333.08154296875
+          },
+          "62": {
+            "batch_size": 62,
+            "latency_ms": 10.380933580045166,
+            "latency_median_ms": 10.188532500023939,
+            "latency_std_ms": 0.5734901677415903,
+            "throughput": 5972.487880972478,
+            "memory_mb": 325.82470703125
+          },
+          "97": {
+            "batch_size": 97,
+            "latency_ms": 15.6324732000121,
+            "latency_median_ms": 15.650861000040095,
+            "latency_std_ms": 0.11257638735089126,
+            "throughput": 6205.032227397321,
+            "memory_mb": 487.59521484375
+          },
+          "81": {
+            "batch_size": 81,
+            "latency_ms": 13.19659629997659,
+            "latency_median_ms": 13.151984999922206,
+            "latency_std_ms": 0.10026117069174616,
+            "throughput": 6137.946343038749,
+            "memory_mb": 416.83056640625
+          },
+          "89": {
+            "batch_size": 89,
+            "latency_ms": 14.419612620022235,
+            "latency_median_ms": 14.397911500282135,
+            "latency_std_ms": 0.08875084602252944,
+            "throughput": 6172.149165534432,
+            "memory_mb": 449.41650390625
+          },
+          "93": {
+            "batch_size": 93,
+            "latency_ms": 15.143531700023232,
+            "latency_median_ms": 15.154764500039164,
+            "latency_std_ms": 0.100674109220206,
+            "throughput": 6141.235865069529,
+            "memory_mb": 472.66259765625
+          },
+          "91": {
+            "batch_size": 91,
+            "latency_ms": 14.685341140029777,
+            "latency_median_ms": 14.626508500214186,
+            "latency_std_ms": 0.12418508602863078,
+            "throughput": 6196.655503762814,
+            "memory_mb": 460.58642578125
+          },
+          "92": {
+            "batch_size": 92,
+            "latency_ms": 14.826701000001776,
+            "latency_median_ms": 14.79011949982123,
+            "latency_std_ms": 0.10495281056202094,
+            "throughput": 6205.021602579628,
+            "memory_mb": 463.21826171875
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 25,
+            "latency_ms": 4.925089940015823,
+            "latency_median_ms": 4.57854999990559,
+            "latency_std_ms": 0.50485900368647,
+            "throughput": 5076.049433509366
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 61,
+            "latency_ms": 9.998848840023129,
+            "latency_median_ms": 9.975809500247124,
+            "latency_std_ms": 0.07180030021973546,
+            "throughput": 6100.702288430525
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 92,
+            "latency_ms": 14.826701000001776,
+            "latency_median_ms": 14.79011949982123,
+            "latency_std_ms": 0.10495281056202094,
+            "throughput": 6205.021602579628
+          }
+        }
+      },
+      "128": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 1.1868967800182872,
+            "latency_median_ms": 1.1810389999027393,
+            "latency_std_ms": 0.017397833190463317,
+            "throughput": 842.5332487502345,
+            "memory_mb": 291.93017578125
+          },
+          "33": {
+            "batch_size": 33,
+            "latency_ms": 10.956058640058473,
+            "latency_median_ms": 10.97507850022339,
+            "latency_std_ms": 0.09110983921612266,
+            "throughput": 3012.0320714004392,
+            "memory_mb": 347.03955078125
+          },
+          "17": {
+            "batch_size": 17,
+            "latency_ms": 6.437994719954077,
+            "latency_median_ms": 5.9252890000607294,
+            "latency_std_ms": 0.6424987239265485,
+            "throughput": 2640.5737717227057,
+            "memory_mb": 196.38330078125
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 3.617435420037509,
+            "latency_median_ms": 3.480932499996925,
+            "latency_std_ms": 0.3056400449369043,
+            "throughput": 2487.95042757299,
+            "memory_mb": 124.08642578125
+          },
+          "13": {
+            "batch_size": 13,
+            "latency_ms": 4.993045439941852,
+            "latency_median_ms": 5.0068564999037335,
+            "latency_std_ms": 0.095726418963233,
+            "throughput": 2603.621408290527,
+            "memory_mb": 164.26611328125
+          },
+          "15": {
+            "batch_size": 15,
+            "latency_ms": 5.4327634800119995,
+            "latency_median_ms": 5.25139150022369,
+            "latency_std_ms": 0.42539365853610817,
+            "throughput": 2761.0257754064546,
+            "memory_mb": 180.16845703125
+          },
+          "14": {
+            "batch_size": 14,
+            "latency_ms": 5.474798139985069,
+            "latency_median_ms": 5.00788049998846,
+            "latency_std_ms": 0.5648033638973039,
+            "throughput": 2557.171906988005,
+            "memory_mb": 168.77978515625
+          },
+          "25": {
+            "batch_size": 25,
+            "latency_ms": 8.490527799986012,
+            "latency_median_ms": 8.303545499984466,
+            "latency_std_ms": 0.5450779494430334,
+            "throughput": 2944.457704978151,
+            "memory_mb": 270.36767578125
+          },
+          "29": {
+            "batch_size": 29,
+            "latency_ms": 9.9201027199706,
+            "latency_median_ms": 9.807010499798707,
+            "latency_std_ms": 0.5212246700824124,
+            "throughput": 2923.356825894434,
+            "memory_mb": 306.79736328125
+          },
+          "31": {
+            "batch_size": 31,
+            "latency_ms": 10.260165740000957,
+            "latency_median_ms": 10.173014500196587,
+            "latency_std_ms": 0.3679238158130973,
+            "throughput": 3021.3936875445743,
+            "memory_mb": 325.82470703125
+          },
+          "30": {
+            "batch_size": 30,
+            "latency_ms": 9.861915399997088,
+            "latency_median_ms": 9.808990000237827,
+            "latency_std_ms": 0.10550278538899245,
+            "throughput": 3042.005410025,
+            "memory_mb": 319.12353515625
+          },
+          "49": {
+            "batch_size": 49,
+            "latency_ms": 15.738445340002727,
+            "latency_median_ms": 15.743875499765636,
+            "latency_std_ms": 0.10220897046773202,
+            "throughput": 3113.3951887519474,
+            "memory_mb": 859.58642578125
+          },
+          "41": {
+            "batch_size": 41,
+            "latency_ms": 13.482137040045927,
+            "latency_median_ms": 13.50510549991668,
+            "latency_std_ms": 0.10715158548141986,
+            "throughput": 3041.0609147658042,
+            "memory_mb": 418.52490234375
+          },
+          "45": {
+            "batch_size": 45,
+            "latency_ms": 14.50180316001024,
+            "latency_median_ms": 14.46183650000421,
+            "latency_std_ms": 0.09691997547619308,
+            "throughput": 3103.062391861084,
+            "memory_mb": 458.70458984375
+          },
+          "47": {
+            "batch_size": 47,
+            "latency_ms": 15.082254720045967,
+            "latency_median_ms": 15.046165000057954,
+            "latency_std_ms": 0.09215394091744865,
+            "throughput": 3116.2449429747303,
+            "memory_mb": 474.60693359375
+          },
+          "46": {
+            "batch_size": 46,
+            "latency_ms": 14.781006559960588,
+            "latency_median_ms": 14.741004999905272,
+            "latency_std_ms": 0.10430481957943968,
+            "throughput": 3112.1019947725845,
+            "memory_mb": 463.21826171875
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 13,
+            "latency_ms": 4.993045439941852,
+            "latency_median_ms": 5.0068564999037335,
+            "latency_std_ms": 0.095726418963233,
+            "throughput": 2603.621408290527
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 30,
+            "latency_ms": 9.861915399997088,
+            "latency_median_ms": 9.808990000237827,
+            "latency_std_ms": 0.10550278538899245,
+            "throughput": 3042.005410025
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 46,
+            "latency_ms": 14.781006559960588,
+            "latency_median_ms": 14.741004999905272,
+            "latency_std_ms": 0.10430481957943968,
+            "throughput": 3112.1019947725845
+          }
+        }
+      },
+      "256": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 1.5788019199862902,
+            "latency_median_ms": 1.5755015001559514,
+            "latency_std_ms": 0.018944165623334088,
+            "throughput": 633.3916796913217,
+            "memory_mb": 303.75634765625
+          },
+          "17": {
+            "batch_size": 17,
+            "latency_ms": 11.364031660032197,
+            "latency_median_ms": 11.378879999938363,
+            "latency_std_ms": 0.11449741917283396,
+            "throughput": 1495.9479618302855,
+            "memory_mb": 353.55322265625
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 6.655174680008713,
+            "latency_median_ms": 6.207770999935747,
+            "latency_std_ms": 0.6590106093870626,
+            "throughput": 1352.3311457225668,
+            "memory_mb": 208.20947265625
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 4.115569279983902,
+            "latency_median_ms": 3.741392999927484,
+            "latency_std_ms": 0.4558782820002379,
+            "throughput": 1214.8987563682947,
+            "memory_mb": 136.35009765625
+          },
+          "7": {
+            "batch_size": 7,
+            "latency_ms": 5.226808240022365,
+            "latency_median_ms": 4.999693000172556,
+            "latency_std_ms": 0.4536179065085424,
+            "throughput": 1339.2494383857572,
+            "memory_mb": 168.77978515625
+          },
+          "6": {
+            "batch_size": 6,
+            "latency_ms": 5.045728819986834,
+            "latency_median_ms": 5.355022999992798,
+            "latency_std_ms": 0.4795585062127995,
+            "throughput": 1189.124547524862,
+            "memory_mb": 152.12744140625
+          },
+          "13": {
+            "batch_size": 13,
+            "latency_ms": 8.999085139912495,
+            "latency_median_ms": 8.718176500224217,
+            "latency_std_ms": 0.6894775065818838,
+            "throughput": 1444.5912887680945,
+            "memory_mb": 279.19384765625
+          },
+          "15": {
+            "batch_size": 15,
+            "latency_ms": 9.870725900000252,
+            "latency_median_ms": 9.83623100000841,
+            "latency_std_ms": 0.07581266185338686,
+            "throughput": 1519.6450749381681,
+            "memory_mb": 319.12353515625
+          },
+          "16": {
+            "batch_size": 16,
+            "latency_ms": 10.611344059889234,
+            "latency_median_ms": 10.628070499933528,
+            "latency_std_ms": 0.09621931613664518,
+            "throughput": 1507.8203015280435,
+            "memory_mb": 334.40087890625
+          },
+          "25": {
+            "batch_size": 25,
+            "latency_ms": 16.1198621800213,
+            "latency_median_ms": 16.1321149998912,
+            "latency_std_ms": 0.11321771887091257,
+            "throughput": 1550.8817458119834,
+            "memory_mb": 502.74951171875
+          },
+          "21": {
+            "batch_size": 21,
+            "latency_ms": 13.644748080059799,
+            "latency_median_ms": 13.604991000647715,
+            "latency_std_ms": 0.10394795876876775,
+            "throughput": 1539.0536986673312,
+            "memory_mb": 430.78857421875
+          },
+          "23": {
+            "batch_size": 23,
+            "latency_ms": 14.978411039955972,
+            "latency_median_ms": 14.958875499814894,
+            "latency_std_ms": 0.0927513960614189,
+            "throughput": 1535.5433856532493,
+            "memory_mb": 463.21826171875
+          },
+          "24": {
+            "batch_size": 24,
+            "latency_ms": 15.500816899930214,
+            "latency_median_ms": 15.503718999752891,
+            "latency_std_ms": 0.08520827142881104,
+            "throughput": 1548.305496086987,
+            "memory_mb": 486.62060546875
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 5,
+            "latency_ms": 4.115569279983902,
+            "latency_median_ms": 3.741392999927484,
+            "latency_std_ms": 0.4558782820002379,
+            "throughput": 1214.8987563682947
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 15,
+            "latency_ms": 9.870725900000252,
+            "latency_median_ms": 9.83623100000841,
+            "latency_std_ms": 0.07581266185338686,
+            "throughput": 1519.6450749381681
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 23,
+            "latency_ms": 14.978411039955972,
+            "latency_median_ms": 14.958875499814894,
+            "latency_std_ms": 0.0927513960614189,
+            "throughput": 1535.5433856532493
+          }
+        }
+      },
+      "512": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 2.2640152799249336,
+            "latency_median_ms": 2.365592499700142,
+            "latency_std_ms": 0.20646338890771243,
+            "throughput": 441.6931320503969,
+            "memory_mb": 327.40869140625
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 11.809725800067099,
+            "latency_median_ms": 11.833414499960782,
+            "latency_std_ms": 0.15050342197239797,
+            "throughput": 762.083739484355,
+            "memory_mb": 374.95556640625
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 6.91470831996412,
+            "latency_median_ms": 6.883185499646061,
+            "latency_std_ms": 0.09042282298248489,
+            "throughput": 723.0962997476001,
+            "memory_mb": 223.98681640625
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 4.559259580018988,
+            "latency_median_ms": 4.416909000156011,
+            "latency_std_ms": 0.35947372306572395,
+            "throughput": 658.0015784026725,
+            "memory_mb": 152.12744140625
+          },
+          "4": {
+            "batch_size": 4,
+            "latency_ms": 6.016864700050064,
+            "latency_median_ms": 5.667209999955958,
+            "latency_std_ms": 0.5731075207250917,
+            "throughput": 664.7980633446382,
+            "memory_mb": 192.18212890625
+          },
+          "7": {
+            "batch_size": 7,
+            "latency_ms": 9.24149574002513,
+            "latency_median_ms": 9.2058340001131,
+            "latency_std_ms": 0.0802657467597309,
+            "throughput": 757.4531436164428,
+            "memory_mb": 298.09619140625
+          },
+          "8": {
+            "batch_size": 8,
+            "latency_ms": 10.528680559946224,
+            "latency_median_ms": 10.482379999302793,
+            "latency_std_ms": 0.103481040714961,
+            "throughput": 759.8293019197517,
+            "memory_mb": 334.40087890625
+          },
+          "13": {
+            "batch_size": 13,
+            "latency_ms": 16.86240311997608,
+            "latency_median_ms": 16.845151499637723,
+            "latency_std_ms": 0.0993439111530096,
+            "throughput": 770.9458674131401,
+            "memory_mb": 518.69091796875
+          },
+          "11": {
+            "batch_size": 11,
+            "latency_ms": 14.62623925999651,
+            "latency_median_ms": 14.54860900003041,
+            "latency_std_ms": 0.3222494485834543,
+            "throughput": 752.0730246828073,
+            "memory_mb": 446.56591796875
+          },
+          "12": {
+            "batch_size": 12,
+            "latency_ms": 15.480060260033497,
+            "latency_median_ms": 15.456508000170288,
+            "latency_std_ms": 0.10723860245058951,
+            "throughput": 775.1907808125053,
+            "memory_mb": 486.62060546875
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 3,
+            "latency_ms": 4.559259580018988,
+            "latency_median_ms": 4.416909000156011,
+            "latency_std_ms": 0.35947372306572395,
+            "throughput": 658.0015784026725
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 7,
+            "latency_ms": 9.24149574002513,
+            "latency_median_ms": 9.2058340001131,
+            "latency_std_ms": 0.0802657467597309,
+            "throughput": 757.4531436164428
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 11,
+            "latency_ms": 14.62623925999651,
+            "latency_median_ms": 14.54860900003041,
+            "latency_std_ms": 0.3222494485834543,
+            "throughput": 752.0730246828073
+          }
+        }
+      },
+      "1024": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 3.88153705995137,
+            "latency_median_ms": 4.008713000075659,
+            "latency_std_ms": 0.30570996550039387,
+            "throughput": 257.62989881449914,
+            "memory_mb": 284.7197265625
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 13.258142040085659,
+            "latency_median_ms": 13.256713999908243,
+            "latency_std_ms": 0.10049986010693501,
+            "throughput": 377.1267485958912,
+            "memory_mb": 409.01123046875
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 8.191037740016327,
+            "latency_median_ms": 8.140530499986198,
+            "latency_std_ms": 0.1016535246329454,
+            "throughput": 366.2539589268234,
+            "memory_mb": 264.29150390625
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 5.865574239996931,
+            "latency_median_ms": 5.686180000338936,
+            "latency_std_ms": 0.4582188360303647,
+            "throughput": 340.972583103994,
+            "memory_mb": 192.18212890625
+          },
+          "4": {
+            "batch_size": 4,
+            "latency_ms": 10.563766219984245,
+            "latency_median_ms": 10.546847499881551,
+            "latency_std_ms": 0.06834874595190255,
+            "throughput": 378.6528323991976,
+            "memory_mb": 334.40087890625
+          },
+          "7": {
+            "batch_size": 7,
+            "latency_ms": 18.05088351991799,
+            "latency_median_ms": 18.116175499926612,
+            "latency_std_ms": 0.13694726575078725,
+            "throughput": 387.7926524912728,
+            "memory_mb": 559.32373046875
+          },
+          "6": {
+            "batch_size": 6,
+            "latency_ms": 15.778741779959091,
+            "latency_median_ms": 15.779663000103028,
+            "latency_std_ms": 0.06011105297327996,
+            "throughput": 380.25845683213635,
+            "memory_mb": 486.62060546875
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 3.88153705995137,
+            "latency_median_ms": 4.008713000075659,
+            "latency_std_ms": 0.30570996550039387,
+            "throughput": 257.62989881449914
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 3,
+            "latency_ms": 8.191037740016327,
+            "latency_median_ms": 8.140530499986198,
+            "latency_std_ms": 0.1016535246329454,
+            "throughput": 366.2539589268234
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 5,
+            "latency_ms": 13.258142040085659,
+            "latency_median_ms": 13.256713999908243,
+            "latency_std_ms": 0.10049986010693501,
+            "throughput": 377.1267485958912
+          }
+        }
+      }
+    }
+  },
+  "120M": {
+    "config_name": "120M",
+    "estimated_params_m": 68.717568,
+    "optimized": {
+      "32": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 1.5229206200456247,
+            "latency_median_ms": 1.5129909997995128,
+            "latency_std_ms": 0.03737147482051289,
+            "throughput": 656.633042351243,
+            "memory_mb": 406.81591796875
+          },
+          "33": {
+            "batch_size": 33,
+            "latency_ms": 9.162716599876148,
+            "latency_median_ms": 9.11419499971089,
+            "latency_std_ms": 0.12726800992102405,
+            "throughput": 3601.551967726041,
+            "memory_mb": 592.72216796875
+          },
+          "17": {
+            "batch_size": 17,
+            "latency_ms": 5.425904000021546,
+            "latency_median_ms": 5.204806500387349,
+            "latency_std_ms": 0.482803402595832,
+            "throughput": 3133.118462828036,
+            "memory_mb": 500.72998046875
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 3.8186180999764474,
+            "latency_median_ms": 3.871282499858353,
+            "latency_std_ms": 0.2454885336158905,
+            "throughput": 2356.873550684608,
+            "memory_mb": 450.85888671875
+          },
+          "13": {
+            "batch_size": 13,
+            "latency_ms": 4.903139840116637,
+            "latency_median_ms": 4.59738749987082,
+            "latency_std_ms": 0.5114973889110296,
+            "throughput": 2651.36227476856,
+            "memory_mb": 416.5693359375
+          },
+          "15": {
+            "batch_size": 15,
+            "latency_ms": 5.005743479996454,
+            "latency_median_ms": 4.8166645001401776,
+            "latency_std_ms": 0.45676442016455765,
+            "throughput": 2996.5578659677194,
+            "memory_mb": 418.3193359375
+          },
+          "14": {
+            "batch_size": 14,
+            "latency_ms": 5.144825059978757,
+            "latency_median_ms": 4.734082500363002,
+            "latency_std_ms": 0.6206808669608003,
+            "throughput": 2721.1809608270346,
+            "memory_mb": 416.5693359375
+          },
+          "49": {
+            "batch_size": 49,
+            "latency_ms": 13.003458300026978,
+            "latency_median_ms": 12.90877699966586,
+            "latency_std_ms": 0.16232757495843994,
+            "throughput": 3768.228333527116,
+            "memory_mb": 686.37060546875
+          },
+          "41": {
+            "batch_size": 41,
+            "latency_ms": 10.974066519975167,
+            "latency_median_ms": 10.894290499891213,
+            "latency_std_ms": 0.42562728203281547,
+            "throughput": 3736.0808707848782,
+            "memory_mb": 415.6943359375
+          },
+          "37": {
+            "batch_size": 37,
+            "latency_ms": 10.42349421997642,
+            "latency_median_ms": 10.294190999957209,
+            "latency_std_ms": 0.48662782778425684,
+            "throughput": 3549.673383910957,
+            "memory_mb": 418.3193359375
+          },
+          "35": {
+            "batch_size": 35,
+            "latency_ms": 9.787129780052055,
+            "latency_median_ms": 9.731370500048797,
+            "latency_std_ms": 0.12384135851023856,
+            "throughput": 3576.125052651937,
+            "memory_mb": 417.4443359375
+          },
+          "36": {
+            "batch_size": 36,
+            "latency_ms": 9.995899299992743,
+            "latency_median_ms": 9.876495999833423,
+            "latency_std_ms": 0.4229491499592674,
+            "throughput": 3601.476857617617,
+            "memory_mb": 419.8193359375
+          },
+          "57": {
+            "batch_size": 57,
+            "latency_ms": 15.083327319989621,
+            "latency_median_ms": 15.079945999787014,
+            "latency_std_ms": 0.13747216651528896,
+            "throughput": 3779.0070314564537,
+            "memory_mb": 425.16357421875
+          },
+          "53": {
+            "batch_size": 53,
+            "latency_ms": 13.99954987997262,
+            "latency_median_ms": 13.909738500387903,
+            "latency_std_ms": 0.15730982768598142,
+            "throughput": 3785.8360057576124,
+            "memory_mb": 419.1943359375
+          },
+          "55": {
+            "batch_size": 55,
+            "latency_ms": 14.374031019924587,
+            "latency_median_ms": 14.325523000024987,
+            "latency_std_ms": 0.16431468111123765,
+            "throughput": 3826.3448801356876,
+            "memory_mb": 417.1943359375
+          },
+          "56": {
+            "batch_size": 56,
+            "latency_ms": 14.566787260064302,
+            "latency_median_ms": 14.561016999778076,
+            "latency_std_ms": 0.15712448029355455,
+            "throughput": 3844.3617662713636,
+            "memory_mb": 418.3193359375
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 13,
+            "latency_ms": 4.903139840116637,
+            "latency_median_ms": 4.59738749987082,
+            "latency_std_ms": 0.5114973889110296,
+            "throughput": 2651.36227476856
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 36,
+            "latency_ms": 9.995899299992743,
+            "latency_median_ms": 9.876495999833423,
+            "latency_std_ms": 0.4229491499592674,
+            "throughput": 3601.476857617617
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 56,
+            "latency_ms": 14.566787260064302,
+            "latency_median_ms": 14.561016999778076,
+            "latency_std_ms": 0.15712448029355455,
+            "throughput": 3844.3617662713636
+          }
+        }
+      },
+      "64": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 1.7978180999853066,
+            "latency_median_ms": 1.8121269999937795,
+            "latency_std_ms": 0.06410457668527698,
+            "throughput": 556.2297987811853,
+            "memory_mb": 417.4443359375
+          },
+          "17": {
+            "batch_size": 17,
+            "latency_ms": 9.579173480033205,
+            "latency_median_ms": 9.523193499717308,
+            "latency_std_ms": 0.11853284173518223,
+            "throughput": 1774.683383220352,
+            "memory_mb": 418.3193359375
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 5.410856260059518,
+            "latency_median_ms": 5.378688000291731,
+            "latency_std_ms": 0.11415941672651336,
+            "throughput": 1663.3226919062533,
+            "memory_mb": 417.4443359375
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 3.934914939945884,
+            "latency_median_ms": 3.976353500092955,
+            "latency_std_ms": 0.23549564611158214,
+            "throughput": 1270.6754977704204,
+            "memory_mb": 418.3193359375
+          },
+          "7": {
+            "batch_size": 7,
+            "latency_ms": 5.31160213997282,
+            "latency_median_ms": 5.80438699989827,
+            "latency_std_ms": 0.6027491957719497,
+            "throughput": 1317.8697906081911,
+            "memory_mb": 417.4443359375
+          },
+          "6": {
+            "batch_size": 6,
+            "latency_ms": 4.561977579851373,
+            "latency_median_ms": 4.421726999680686,
+            "latency_std_ms": 0.3853132680156015,
+            "throughput": 1315.2190897429787,
+            "memory_mb": 418.3193359375
+          },
+          "25": {
+            "batch_size": 25,
+            "latency_ms": 13.056606779955473,
+            "latency_median_ms": 13.018131000080757,
+            "latency_std_ms": 0.08796627577778572,
+            "throughput": 1914.7394435114677,
+            "memory_mb": 417.4443359375
+          },
+          "21": {
+            "batch_size": 21,
+            "latency_ms": 11.79562787994655,
+            "latency_median_ms": 11.791724500199052,
+            "latency_std_ms": 0.1032527470441974,
+            "throughput": 1780.320658953778,
+            "memory_mb": 418.3193359375
+          },
+          "19": {
+            "batch_size": 19,
+            "latency_ms": 10.465351760012709,
+            "latency_median_ms": 10.392783000042982,
+            "latency_std_ms": 0.13079712155044668,
+            "throughput": 1815.5147037290724,
+            "memory_mb": 417.4443359375
+          },
+          "18": {
+            "batch_size": 18,
+            "latency_ms": 9.88311478002288,
+            "latency_median_ms": 9.825225500208035,
+            "latency_std_ms": 0.13755956882134063,
+            "throughput": 1821.2881668018358,
+            "memory_mb": 418.3193359375
+          },
+          "29": {
+            "batch_size": 29,
+            "latency_ms": 15.060123860021122,
+            "latency_median_ms": 15.024132000235113,
+            "latency_std_ms": 0.0964188863115511,
+            "throughput": 1925.6149729939425,
+            "memory_mb": 425.9169921875
+          },
+          "27": {
+            "batch_size": 27,
+            "latency_ms": 14.138582020041213,
+            "latency_median_ms": 14.060435499686719,
+            "latency_std_ms": 0.19832347446629497,
+            "throughput": 1909.668166279188,
+            "memory_mb": 418.3193359375
+          },
+          "28": {
+            "batch_size": 28,
+            "latency_ms": 14.465291040014563,
+            "latency_median_ms": 14.432182999826182,
+            "latency_std_ms": 0.13108763636142265,
+            "throughput": 1935.667932469875,
+            "memory_mb": 417.4443359375
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 6,
+            "latency_ms": 4.561977579851373,
+            "latency_median_ms": 4.421726999680686,
+            "latency_std_ms": 0.3853132680156015,
+            "throughput": 1315.2190897429787
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 18,
+            "latency_ms": 9.88311478002288,
+            "latency_median_ms": 9.825225500208035,
+            "latency_std_ms": 0.13755956882134063,
+            "throughput": 1821.2881668018358
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 28,
+            "latency_ms": 14.465291040014563,
+            "latency_median_ms": 14.432182999826182,
+            "latency_std_ms": 0.13108763636142265,
+            "throughput": 1935.667932469875
+          }
+        }
+      },
+      "128": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 2.411099100008869,
+            "latency_median_ms": 2.4044755000431906,
+            "latency_std_ms": 0.02742404407034945,
+            "throughput": 414.74860987518997,
+            "memory_mb": 422.185546875
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 9.955818580092455,
+            "latency_median_ms": 9.86170950000087,
+            "latency_std_ms": 0.17516971971177098,
+            "throughput": 903.9939737347465,
+            "memory_mb": 417.4443359375
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 6.0850689000108105,
+            "latency_median_ms": 5.862546999651386,
+            "latency_std_ms": 0.5028216690879345,
+            "throughput": 821.6833830741205,
+            "memory_mb": 417.4443359375
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 5.1402605800831225,
+            "latency_median_ms": 5.322300999978324,
+            "latency_std_ms": 0.36643906551960237,
+            "throughput": 583.6279996434515,
+            "memory_mb": 418.3193359375
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 3.6549201600064407,
+            "latency_median_ms": 3.6407140000846994,
+            "latency_std_ms": 0.06261885106471293,
+            "throughput": 547.2075756632877,
+            "memory_mb": 417.4443359375
+          },
+          "13": {
+            "batch_size": 13,
+            "latency_ms": 13.668243719930615,
+            "latency_median_ms": 13.616524999633839,
+            "latency_std_ms": 0.11986288900714066,
+            "throughput": 951.1097597011529,
+            "memory_mb": 417.4443359375
+          },
+          "11": {
+            "batch_size": 11,
+            "latency_ms": 11.747560880012315,
+            "latency_median_ms": 11.753985500035924,
+            "latency_std_ms": 0.1034368742220624,
+            "throughput": 936.3645877090759,
+            "memory_mb": 418.3193359375
+          },
+          "10": {
+            "batch_size": 10,
+            "latency_ms": 10.704851200080157,
+            "latency_median_ms": 10.669236000467208,
+            "latency_std_ms": 0.12481174817850642,
+            "throughput": 934.1559086711192,
+            "memory_mb": 416.5693359375
+          },
+          "15": {
+            "batch_size": 15,
+            "latency_ms": 15.386267979974946,
+            "latency_median_ms": 15.36853850029729,
+            "latency_std_ms": 0.11386880534916319,
+            "throughput": 974.8952780181868,
+            "memory_mb": 435.611328125
+          },
+          "14": {
+            "batch_size": 14,
+            "latency_ms": 14.545618720021594,
+            "latency_median_ms": 14.597447000141983,
+            "latency_std_ms": 0.1468099880110833,
+            "throughput": 962.4891363836887,
+            "memory_mb": 417.4443359375
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 2,
+            "latency_ms": 3.6549201600064407,
+            "latency_median_ms": 3.6407140000846994,
+            "latency_std_ms": 0.06261885106471293,
+            "throughput": 547.2075756632877
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 9,
+            "latency_ms": 9.955818580092455,
+            "latency_median_ms": 9.86170950000087,
+            "latency_std_ms": 0.17516971971177098,
+            "throughput": 903.9939737347465
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 14,
+            "latency_ms": 14.545618720021594,
+            "latency_median_ms": 14.597447000141983,
+            "latency_std_ms": 0.1468099880110833,
+            "throughput": 962.4891363836887
+          }
+        }
+      },
+      "256": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 3.4470420199613727,
+            "latency_median_ms": 3.653883499737276,
+            "latency_std_ms": 0.3203779477093285,
+            "throughput": 290.1038032635314,
+            "memory_mb": 418.3193359375
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 10.716080839938513,
+            "latency_median_ms": 10.682461999749648,
+            "latency_std_ms": 0.10188725170222555,
+            "throughput": 466.5884920693347,
+            "memory_mb": 416.5693359375
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 7.6553469999817025,
+            "latency_median_ms": 7.193204000031983,
+            "latency_std_ms": 0.7799314054147068,
+            "throughput": 391.88295449013225,
+            "memory_mb": 418.3193359375
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 5.091779539907293,
+            "latency_median_ms": 5.020695499752037,
+            "latency_std_ms": 0.3061413577336371,
+            "throughput": 392.78998321211964,
+            "memory_mb": 418.9443359375
+          },
+          "4": {
+            "batch_size": 4,
+            "latency_ms": 8.939382859989564,
+            "latency_median_ms": 8.89891799988618,
+            "latency_std_ms": 0.09968282845465821,
+            "throughput": 447.4581816942864,
+            "memory_mb": 417.4443359375
+          },
+          "7": {
+            "batch_size": 7,
+            "latency_ms": 14.455061739936355,
+            "latency_median_ms": 14.37897649975639,
+            "latency_std_ms": 0.1788414858807269,
+            "throughput": 484.2594328504626,
+            "memory_mb": 418.3193359375
+          },
+          "8": {
+            "batch_size": 8,
+            "latency_ms": 16.507375399996818,
+            "latency_median_ms": 16.49645499946928,
+            "latency_std_ms": 0.1498958794720457,
+            "throughput": 484.6318573455077,
+            "memory_mb": 451.75
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 3.4470420199613727,
+            "latency_median_ms": 3.653883499737276,
+            "latency_std_ms": 0.3203779477093285,
+            "throughput": 290.1038032635314
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 4,
+            "latency_ms": 8.939382859989564,
+            "latency_median_ms": 8.89891799988618,
+            "latency_std_ms": 0.09968282845465821,
+            "throughput": 447.4581816942864
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 7,
+            "latency_ms": 14.455061739936355,
+            "latency_median_ms": 14.37897649975639,
+            "latency_std_ms": 0.1788414858807269,
+            "throughput": 484.2594328504626
+          }
+        }
+      },
+      "512": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 5.658784340012062,
+            "latency_median_ms": 5.1341349999347585,
+            "latency_std_ms": 0.6502283061045617,
+            "throughput": 176.71640054016768,
+            "memory_mb": 417.4443359375
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 13.047147639954346,
+            "latency_median_ms": 13.07342800009792,
+            "latency_std_ms": 0.14490905925032413,
+            "throughput": 229.93531481264802,
+            "memory_mb": 417.4443359375
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 8.975120060022164,
+            "latency_median_ms": 8.937462500398397,
+            "latency_std_ms": 0.10458971913909727,
+            "throughput": 222.83824468361053,
+            "memory_mb": 418.3193359375
+          },
+          "4": {
+            "batch_size": 4,
+            "latency_ms": 16.449631260038586,
+            "latency_median_ms": 16.390271500313247,
+            "latency_std_ms": 0.1446346546168429,
+            "throughput": 243.1665449983234,
+            "memory_mb": 452.625
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 5.658784340012062,
+            "latency_median_ms": 5.1341349999347585,
+            "latency_std_ms": 0.6502283061045617,
+            "throughput": 176.71640054016768
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 2,
+            "latency_ms": 8.975120060022164,
+            "latency_median_ms": 8.937462500398397,
+            "latency_std_ms": 0.10458971913909727,
+            "throughput": 222.83824468361053
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 3,
+            "latency_ms": 13.047147639954346,
+            "latency_median_ms": 13.07342800009792,
+            "latency_std_ms": 0.14490905925032413,
+            "throughput": 229.93531481264802
+          }
+        }
+      },
+      "1024": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 9.097746619936515,
+            "latency_median_ms": 8.9955209996333,
+            "latency_std_ms": 0.40580609237360943,
+            "throughput": 109.91732807865098,
+            "memory_mb": 418.3193359375
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 16.860933439966175,
+            "latency_median_ms": 16.852332500093326,
+            "latency_std_ms": 0.09162741789672522,
+            "throughput": 118.61739488629476,
+            "memory_mb": 452.625
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 9.097746619936515,
+            "latency_median_ms": 8.9955209996333,
+            "latency_std_ms": 0.40580609237360943,
+            "throughput": 109.91732807865098
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 9.097746619936515,
+            "latency_median_ms": 8.9955209996333,
+            "latency_std_ms": 0.40580609237360943,
+            "throughput": 109.91732807865098
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 9.097746619936515,
+            "latency_median_ms": 8.9955209996333,
+            "latency_std_ms": 0.40580609237360943,
+            "throughput": 109.91732807865098
+          }
+        }
+      }
+    }
+  },
+  "720M": {
+    "config_name": "720M",
+    "estimated_params_m": 494.86848,
+    "optimized": {
+      "32": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 3.8968986200234212,
+            "latency_median_ms": 3.6994714996581024,
+            "latency_std_ms": 0.3779776595445124,
+            "throughput": 256.61432269797916,
+            "memory_mb": 2055.8359375
+          },
+          "9": {
+            "batch_size": 9,
+            "latency_ms": 14.624857400031033,
+            "latency_median_ms": 14.605854500587157,
+            "latency_std_ms": 0.10960112933128348,
+            "throughput": 615.3906157048001,
+            "memory_mb": 2866.845703125
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 8.378842179936328,
+            "latency_median_ms": 8.323325499986822,
+            "latency_std_ms": 0.18911012816918316,
+            "throughput": 596.7411597717903,
+            "memory_mb": 2866.845703125
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 7.178375419935037,
+            "latency_median_ms": 7.139293999898655,
+            "latency_std_ms": 0.12890106742339366,
+            "throughput": 417.92185898618686,
+            "memory_mb": 2866.845703125
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 5.172434019987122,
+            "latency_median_ms": 4.969193999841082,
+            "latency_std_ms": 0.5162495855440273,
+            "throughput": 386.6651546006534,
+            "memory_mb": 2866.845703125
+          },
+          "7": {
+            "batch_size": 7,
+            "latency_ms": 12.74505338000381,
+            "latency_median_ms": 12.719019500309514,
+            "latency_std_ms": 0.11046527247623039,
+            "throughput": 549.2326937588634,
+            "memory_mb": 2866.845703125
+          },
+          "6": {
+            "batch_size": 6,
+            "latency_ms": 12.418475360063894,
+            "latency_median_ms": 12.319438999838894,
+            "latency_std_ms": 0.2527978891135379,
+            "throughput": 483.1510975409408,
+            "memory_mb": 2866.845703125
+          },
+          "13": {
+            "batch_size": 13,
+            "latency_ms": 21.148414320050506,
+            "latency_median_ms": 21.168437999676826,
+            "latency_std_ms": 0.16369932009509502,
+            "throughput": 614.7032965811951,
+            "memory_mb": 2866.845703125
+          },
+          "11": {
+            "batch_size": 11,
+            "latency_ms": 19.493451660018764,
+            "latency_median_ms": 19.577836000280513,
+            "latency_std_ms": 0.22356014018497944,
+            "throughput": 564.29206032101,
+            "memory_mb": 2866.845703125
+          },
+          "10": {
+            "batch_size": 10,
+            "latency_ms": 15.369294199954311,
+            "latency_median_ms": 15.353009500358894,
+            "latency_std_ms": 0.14941198535801523,
+            "throughput": 650.6479653457169,
+            "memory_mb": 2866.845703125
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 3.8968986200234212,
+            "latency_median_ms": 3.6994714996581024,
+            "latency_std_ms": 0.3779776595445124,
+            "throughput": 256.61432269797916
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 5,
+            "latency_ms": 8.378842179936328,
+            "latency_median_ms": 8.323325499986822,
+            "latency_std_ms": 0.18911012816918316,
+            "throughput": 596.7411597717903
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 9,
+            "latency_ms": 14.624857400031033,
+            "latency_median_ms": 14.605854500587157,
+            "latency_std_ms": 0.10960112933128348,
+            "throughput": 615.3906157048001
+          }
+        }
+      },
+      "64": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 5.168547020002734,
+            "latency_median_ms": 4.951068000082159,
+            "latency_std_ms": 0.543214612643963,
+            "throughput": 193.477972848058,
+            "memory_mb": 2866.845703125
+          },
+          "5": {
+            "batch_size": 5,
+            "latency_ms": 15.358531720048632,
+            "latency_median_ms": 15.2816469994832,
+            "latency_std_ms": 0.19013142204693187,
+            "throughput": 325.55195321653883,
+            "memory_mb": 2866.845703125
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 12.1840142200017,
+            "latency_median_ms": 12.118791499688086,
+            "latency_std_ms": 0.17668896594207653,
+            "throughput": 246.22426942633538,
+            "memory_mb": 2866.845703125
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 7.84677878002185,
+            "latency_median_ms": 7.732370000212541,
+            "latency_std_ms": 0.5044200178105486,
+            "throughput": 254.88165985921052,
+            "memory_mb": 2866.845703125
+          },
+          "4": {
+            "batch_size": 4,
+            "latency_ms": 14.413214799988054,
+            "latency_median_ms": 14.423252499909722,
+            "latency_std_ms": 0.13701486411018307,
+            "throughput": 277.5230963742603,
+            "memory_mb": 2866.845703125
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 5.168547020002734,
+            "latency_median_ms": 4.951068000082159,
+            "latency_std_ms": 0.543214612643963,
+            "throughput": 193.477972848058
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 2,
+            "latency_ms": 7.84677878002185,
+            "latency_median_ms": 7.732370000212541,
+            "latency_std_ms": 0.5044200178105486,
+            "throughput": 254.88165985921052
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 4,
+            "latency_ms": 14.413214799988054,
+            "latency_median_ms": 14.423252499909722,
+            "latency_std_ms": 0.13701486411018307,
+            "throughput": 277.5230963742603
+          }
+        }
+      },
+      "128": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 8.21523039992826,
+            "latency_median_ms": 7.855479999761883,
+            "latency_std_ms": 0.8443052440149292,
+            "throughput": 121.72513141064586,
+            "memory_mb": 2866.845703125
+          },
+          "3": {
+            "batch_size": 3,
+            "latency_ms": 19.650074439960008,
+            "latency_median_ms": 19.511735500145733,
+            "latency_std_ms": 0.25375487558868004,
+            "throughput": 152.67117736201845,
+            "memory_mb": 2866.845703125
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 13.899786039983155,
+            "latency_median_ms": 13.85586600008537,
+            "latency_std_ms": 0.17542800363390545,
+            "throughput": 143.88710691279272,
+            "memory_mb": 2866.845703125
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 8.21523039992826,
+            "latency_median_ms": 7.855479999761883,
+            "latency_std_ms": 0.8443052440149292,
+            "throughput": 121.72513141064586
+          },
+          "10.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 8.21523039992826,
+            "latency_median_ms": 7.855479999761883,
+            "latency_std_ms": 0.8443052440149292,
+            "throughput": 121.72513141064586
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 2,
+            "latency_ms": 13.899786039983155,
+            "latency_median_ms": 13.85586600008537,
+            "latency_std_ms": 0.17542800363390545,
+            "throughput": 143.88710691279272
+          }
+        }
+      },
+      "256": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 13.788828579981782,
+            "latency_median_ms": 13.764205999905244,
+            "latency_std_ms": 0.10647610722307242,
+            "throughput": 72.52247674264156,
+            "memory_mb": 2866.845703125
+          },
+          "2": {
+            "batch_size": 2,
+            "latency_ms": 26.181217599969386,
+            "latency_median_ms": 26.183002500147268,
+            "latency_std_ms": 0.05039458775908924,
+            "throughput": 76.39064120540898,
+            "memory_mb": 2866.845703125
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 13.788828579981782,
+            "latency_median_ms": 13.764205999905244,
+            "latency_std_ms": 0.10647610722307242,
+            "throughput": 72.52247674264156
+          },
+          "10.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 13.788828579981782,
+            "latency_median_ms": 13.764205999905244,
+            "latency_std_ms": 0.10647610722307242,
+            "throughput": 72.52247674264156
+          },
+          "15.0": {
+            "sla_met": true,
+            "max_batch_size": 1,
+            "latency_ms": 13.788828579981782,
+            "latency_median_ms": 13.764205999905244,
+            "latency_std_ms": 0.10647610722307242,
+            "throughput": 72.52247674264156
+          }
+        }
+      },
+      "512": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 25.744354400067095,
+            "latency_median_ms": 25.659490499947424,
+            "latency_std_ms": 0.21502551541538367,
+            "throughput": 38.84346775452228,
+            "memory_mb": 2866.845703125
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 25.744354400067095,
+            "latency_median_ms": 25.659490499947424,
+            "latency_std_ms": 0.21502551541538367,
+            "throughput": 38.84346775452228
+          },
+          "10.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 25.744354400067095,
+            "latency_median_ms": 25.659490499947424,
+            "latency_std_ms": 0.21502551541538367,
+            "throughput": 38.84346775452228
+          },
+          "15.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 25.744354400067095,
+            "latency_median_ms": 25.659490499947424,
+            "latency_std_ms": 0.21502551541538367,
+            "throughput": 38.84346775452228
+          }
+        }
+      },
+      "1024": {
+        "measurements": {
+          "1": {
+            "batch_size": 1,
+            "latency_ms": 47.40739748000124,
+            "latency_median_ms": 47.28836300000694,
+            "latency_std_ms": 0.29050417382201177,
+            "throughput": 21.09375441716346,
+            "memory_mb": 2866.845703125
+          }
+        },
+        "sla_results": {
+          "5.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 47.40739748000124,
+            "latency_median_ms": 47.28836300000694,
+            "latency_std_ms": 0.29050417382201177,
+            "throughput": 21.09375441716346
+          },
+          "10.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 47.40739748000124,
+            "latency_median_ms": 47.28836300000694,
+            "latency_std_ms": 0.29050417382201177,
+            "throughput": 21.09375441716346
+          },
+          "15.0": {
+            "sla_met": false,
+            "max_batch_size": 1,
+            "latency_ms": 47.40739748000124,
+            "latency_median_ms": 47.28836300000694,
+            "latency_std_ms": 0.29050417382201177,
+            "throughput": 21.09375441716346
+          }
+        }
+      }
+    }
+  }
+}
