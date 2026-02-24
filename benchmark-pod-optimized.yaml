@@ -62,19 +62,21 @@ spec:
       echo "GPU: NVIDIA A100"
       echo "Configs: 20M, 120M, 720M"
       echo "Sequence lengths: 32, 64, 128, 256, 512, 1024"
-      echo "Batch size progression: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96..."
+      echo "Batch size strategy: Binary search (1-128)"
+      echo "  - Always measure batch_size=1"
+      echo "  - Binary search for each SLA separately"
       echo "Warmup iterations: 20 (for CUDA graph capture)"
-      echo "Benchmark iterations: 50"
+      echo "Benchmark iterations: 50 (mean, median, std)"
       echo "SLA targets: 5ms, 10ms, 15ms"
       echo "Precision: BF16"
       echo "Optimization: torch.compile(fullgraph=True, mode='reduce-overhead')"
       echo "Per-config recompilation: Enabled"
       echo "=========================================="
 
-      # Run optimized-only benchmark
-      echo "Running BF16 optimized-only benchmark..."
+      # Run optimized benchmark with BF16
+      echo "Running BF16 optimized benchmark..."
       python benchmark_tabformer_optimized_only.py \
-        --output /workspace/bf16_optimized_results.json \
+        --precision bf16 \
         --device cuda
 
       echo "=========================================="

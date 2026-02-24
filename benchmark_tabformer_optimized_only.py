@@ -1,10 +1,16 @@
 """
-TabFormer Optimized-Only Benchmark Sweep
+TabFormer Optimized Benchmark Sweep
 
-Tests torch.compile(fullgraph=True) optimized version only (no baseline comparison).
-Uses BF16 precision with per-config recompilation for CUDA graph capture.
-Tests three model sizes (20M, 120M, 720M) across various sequence lengths and batch sizes.
-Computes maximum throughput achievable for SLA targets (5ms, 10ms, 15ms).
+Tests torch.compile(fullgraph=True) optimized version with configurable precision.
+Supports both BF16 and FP32 precision via --precision flag.
+Uses binary search to find maximum batch size for each SLA target (5ms, 10ms, 15ms).
+Tests three model sizes (20M, 120M, 720M) across various sequence lengths.
+
+Features:
+- Always measures batch_size=1 as baseline
+- Binary search from 2-128 for each SLA target
+- Per-config recompilation for CUDA graph capture
+- Tracks mean, median, and std of latency across 50 iterations
 
 Input preparation:
 - 14 fields per transaction:
@@ -339,125 +345,178 @@ def benchmark_model(
         memory_mb = 0
 
     mean_latency = np.mean(latencies)
+    median_latency = np.median(latencies)
+    std_latency = np.std(latencies)
     throughput = (batch_size / mean_latency) * 1000  # sequences/sec
 
     return {
         'latency_ms': mean_latency,
-        'latency_std_ms': np.std(latencies),
+        'latency_median_ms': median_latency,
+        'latency_std_ms': std_latency,
         'throughput': throughput,
         'memory_mb': memory_mb,
     }
 
 
-def find_max_batch_size_for_sla(
+def benchmark_batch_size(
     config: TabFormerConfig,
+    batch_size: int,
     seq_len: int,
-    sla_ms: float,
     device: str = 'cuda',
-    max_batch_size: int = 256,
     use_bf16: bool = True,
 ) -> Dict:
     """
-    Find maximum batch size that meets SLA with torch.compile optimization.
+    Benchmark a specific batch size with torch.compile.
+
+    Returns metrics dict or None if OOM.
+    """
+    try:
+        # Create fresh model for each batch_size to enable CUDA graph capture
+        model = TabFormerNative(config).to(device)
+        model = torch.compile(
+            model,
+            mode='reduce-overhead',
+            fullgraph=True
+        )
+        model.eval()
+
+        metrics = benchmark_model(
+            model,
+            batch_size,
+            seq_len,
+            warmup_iters=20,  # Increased for CUDA graph capture
+            bench_iters=50,
+            device=device,
+            use_bf16=use_bf16,
+        )
+
+        # Clean up model to free memory
+        del model
+        torch.cuda.empty_cache()
+
+        return metrics
+
+    except RuntimeError as e:
+        if "out of memory" in str(e):
+            torch.cuda.empty_cache()
+            return None
+        else:
+            raise
+
+
+def find_max_batch_size_for_sla(
+    config: TabFormerConfig,
+    seq_len: int,
+    sla_targets_ms: List[float],
+    device: str = 'cuda',
+    max_batch_size: int = 128,
+    use_bf16: bool = True,
+) -> Dict:
+    """
+    Find maximum batch size for each SLA target using binary search.
 
     Strategy:
-    - Batch sizes: 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, ... (+2 after 4)
-    - Recompile model for each batch_size for proper CUDA graph capture
+    1. Always measure batch_size=1
+    2. For each SLA target, binary search from 2 to 128
 
-    Returns dict with:
-        - max_batch_size: Largest batch size meeting SLA
-        - max_throughput: Throughput at that batch size
-        - latency_ms: Latency at that batch size
-        - all_results: List of all (batch_size, latency, throughput) tested
+    Returns dict with results for each SLA target and all measurements.
     """
-    all_results = []
-    best_batch_size = 1
-    best_throughput = 0
-    best_latency = float('inf')
+    all_measurements = {}
 
-    batch_size = 1
+    # Always measure batch_size=1
+    print(f"    Measuring batch_size=1 (baseline)...")
+    metrics = benchmark_batch_size(config, 1, seq_len, device, use_bf16)
 
-    while batch_size <= max_batch_size:
-        try:
-            # Create fresh model for each batch_size to enable CUDA graph capture
-            model = TabFormerNative(config).to(device)
-            model = torch.compile(
-                model,
-                mode='reduce-overhead',
-                fullgraph=True
-            )
-            model.eval()
+    if metrics is None:
+        print(f"      OOM at batch_size=1!")
+        return {'measurements': {}, 'sla_results': {}}
 
-            metrics = benchmark_model(
-                model,
-                batch_size,
-                seq_len,
-                warmup_iters=20,  # Increased for CUDA graph capture
-                bench_iters=50,
-                device=device,
-                use_bf16=use_bf16,
-            )
+    all_measurements[1] = {
+        'batch_size': 1,
+        'latency_ms': metrics['latency_ms'],
+        'latency_median_ms': metrics['latency_median_ms'],
+        'latency_std_ms': metrics['latency_std_ms'],
+        'throughput': metrics['throughput'],
+        'memory_mb': metrics['memory_mb'],
+    }
 
-            # Clean up model to free memory
-            del model
-            torch.cuda.empty_cache()
+    print(f"      bs=1: {metrics['latency_ms']:.2f}ms (median: {metrics['latency_median_ms']:.2f}ms, "
+          f"std: {metrics['latency_std_ms']:.2f}ms), {metrics['throughput']:.1f} seq/s")
 
-            latency = metrics['latency_ms']
-            throughput = metrics['throughput']
+    # Binary search for each SLA target
+    sla_results = {}
 
-            all_results.append({
-                'batch_size': batch_size,
-                'latency_ms': latency,
-                'throughput': throughput,
-                'memory_mb': metrics['memory_mb'],
-            })
+    for sla_ms in sorted(sla_targets_ms):
+        print(f"\n    Binary search for SLA {sla_ms}ms (max_bs=128)...")
 
-            print(f"      bs={batch_size}: {latency:.2f}ms, {throughput:.1f} seq/s", end="")
+        # Check if batch_size=1 already exceeds SLA
+        if all_measurements[1]['latency_ms'] > sla_ms:
+            print(f"      bs=1 already exceeds SLA ({all_measurements[1]['latency_ms']:.2f}ms > {sla_ms}ms)")
+            sla_results[sla_ms] = {
+                'sla_met': False,
+                'max_batch_size': 1,
+                'latency_ms': all_measurements[1]['latency_ms'],
+                'latency_median_ms': all_measurements[1]['latency_median_ms'],
+                'latency_std_ms': all_measurements[1]['latency_std_ms'],
+                'throughput': all_measurements[1]['throughput'],
+            }
+            continue
 
-            if latency <= sla_ms:
-                # Still within SLA, update best
-                best_batch_size = batch_size
-                best_throughput = throughput
-                best_latency = latency
-                print(f" ✓")
+        # Binary search from 2 to max_batch_size
+        left, right = 2, max_batch_size
+        best_bs = 1
+        best_metrics = all_measurements[1]
 
-                # Determine next batch size
-                # 1, 2, 3, 4, 6, 8, 10, 12, 14, 16
-                # Then +4 until 32: 20, 24, 28, 32
-                # Then +8 until 64: 40, 48, 56, 64
-                # Then +16: 80, 96, 112, 128, ...
-                if batch_size == 1:
-                    batch_size = 2
-                elif batch_size == 2:
-                    batch_size = 3
-                elif batch_size == 3:
-                    batch_size = 4
-                elif batch_size < 16:
-                    batch_size += 2  # 4 → 6 → 8 → 10 → 12 → 14 → 16
-                elif batch_size < 32:
-                    batch_size += 4  # 16 → 20 → 24 → 28 → 32
-                elif batch_size < 64:
-                    batch_size += 8  # 32 → 40 → 48 → 56 → 64
-                else:
-                    batch_size += 16  # 64 → 80 → 96 → 112 → 128 ...
+        while left <= right:
+            mid = (left + right) // 2
+
+            # Check if already measured
+            if mid not in all_measurements:
+                print(f"      Testing bs={mid}...")
+                metrics = benchmark_batch_size(config, mid, seq_len, device, use_bf16)
+
+                if metrics is None:
+                    print(f"        OOM at bs={mid}, searching lower")
+                    right = mid - 1
+                    continue
+
+                all_measurements[mid] = {
+                    'batch_size': mid,
+                    'latency_ms': metrics['latency_ms'],
+                    'latency_median_ms': metrics['latency_median_ms'],
+                    'latency_std_ms': metrics['latency_std_ms'],
+                    'throughput': metrics['throughput'],
+                    'memory_mb': metrics['memory_mb'],
+                }
+
+                print(f"        bs={mid}: {metrics['latency_ms']:.2f}ms (median: {metrics['latency_median_ms']:.2f}ms, "
+                      f"std: {metrics['latency_std_ms']:.2f}ms), {metrics['throughput']:.1f} seq/s")
+
+            metrics_dict = all_measurements[mid]
+
+            if metrics_dict['latency_ms'] <= sla_ms:
+                # Within SLA, try larger batch size
+                best_bs = mid
+                best_metrics = metrics_dict
+                left = mid + 1
             else:
-                # Exceeded SLA, stop searching
-                print(f" ✗ (exceeds {sla_ms}ms SLA)")
-                break
+                # Exceeds SLA, try smaller batch size
+                right = mid - 1
 
-        except RuntimeError as e:
-            if "out of memory" in str(e):
-                print(f"      bs={batch_size}: OOM")
-                torch.cuda.empty_cache()
-                break
-            else:
-                raise
+        sla_results[sla_ms] = {
+            'sla_met': True,
+            'max_batch_size': best_bs,
+            'latency_ms': best_metrics['latency_ms'],
+            'latency_median_ms': best_metrics['latency_median_ms'],
+            'latency_std_ms': best_metrics['latency_std_ms'],
+            'throughput': best_metrics['throughput'],
+        }
+
+        print(f"      Best: bs={best_bs}, {best_metrics['latency_ms']:.2f}ms, {best_metrics['throughput']:.1f} seq/s")
 
     return {
-        'max_batch_size': best_batch_size,
-        'max_throughput': best_throughput,
-        'latency_ms': best_latency,
-        'all_results': all_results,
+        'measurements': all_measurements,
+        'sla_results': sla_results,
     }
 
 
@@ -540,34 +599,39 @@ def run_sweep(
         results['optimized'][seq_len] = {}
 
         try:
-            # Optimized: With torch.compile fullgraph (recompiles for each batch_size)
+            # Optimized: With torch.compile fullgraph (binary search for each SLA)
             print(f"  Optimized (torch.compile + CUDA graphs, BF16):")
-            optimized_results = find_max_batch_size_for_sla(
+            search_results = find_max_batch_size_for_sla(
                 config,
                 seq_len,
-                max_sla,
+                sla_targets_ms,
                 device=device,
+                max_batch_size=128,
                 use_bf16=use_bf16,
             )
 
-            # Extract results for all SLA targets
-            optimized_sla_results = extract_sla_results(
-                optimized_results['all_results'],
-                sla_targets_ms
-            )
+            # Store results
+            results['optimized'][seq_len] = {
+                'measurements': search_results['measurements'],
+                'sla_results': search_results['sla_results'],
+            }
 
-            for sla_ms, sla_data in optimized_sla_results.items():
-                results['optimized'][seq_len][sla_ms] = sla_data
-                met_str = "✓" if sla_data['sla_met'] else f"✗ (bs=1: {sla_data['bs1_throughput']:.1f} seq/s @ {sla_data['bs1_latency']:.2f}ms)"
+            # Print summary
+            print(f"\n  Summary for seq_len={seq_len}:")
+            for sla_ms, sla_data in search_results['sla_results'].items():
+                met_str = "✓" if sla_data['sla_met'] else "✗"
                 print(f"    SLA {sla_ms}ms: bs={sla_data['max_batch_size']}, "
-                      f"{sla_data['max_throughput']:.1f} seq/s @ {sla_data['latency_ms']:.2f}ms {met_str}")
+                      f"{sla_data['latency_ms']:.2f}ms (median: {sla_data['latency_median_ms']:.2f}ms), "
+                      f"{sla_data['throughput']:.1f} seq/s {met_str}")
 
         except Exception as e:
             print(f"  Error: {e}")
             import traceback
             traceback.print_exc()
-            for sla_ms in sla_targets_ms:
-                results['optimized'][seq_len][sla_ms] = None
+            results['optimized'][seq_len] = {
+                'measurements': {},
+                'sla_results': {},
+            }
             torch.cuda.empty_cache()
 
     return results
@@ -596,47 +660,47 @@ def save_raw_results_jsonl(all_results: Dict, output_file: str):
 
                 # Process optimized results
                 for seq_len, seq_data in config_results.get('optimized', {}).items():
-                    for sla_ms, sla_data in seq_data.items():
-                        if isinstance(sla_data, dict) and 'bs1_throughput' in sla_data:
-                            # Write bs=1 data point
-                            record = {
-                                'config': config_name,
-                                'estimated_params_m': estimated_params,
-                                'seq_len': int(seq_len),
-                                'batch_size': 1,
-                                'latency_ms': sla_data['bs1_latency'],
-                                'throughput': sla_data['bs1_throughput'],
-                                'memory_mb': 0,  # Not tracked at bs=1
-                            }
-                            f.write(json.dumps(record) + '\n')
+                    measurements = seq_data.get('measurements', {})
 
-                            # Write max batch size data point (if different from bs=1)
-                            if sla_data['max_batch_size'] > 1 and sla_data['sla_met']:
-                                record = {
-                                    'config': config_name,
-                                    'estimated_params_m': estimated_params,
-                                    'seq_len': int(seq_len),
-                                    'batch_size': sla_data['max_batch_size'],
-                                    'latency_ms': sla_data['latency_ms'],
-                                    'throughput': sla_data['max_throughput'],
-                                    'memory_mb': 0,  # Not tracked separately
-                                }
-                                f.write(json.dumps(record) + '\n')
+                    # Write all measurements
+                    for batch_size, metrics in measurements.items():
+                        record = {
+                            'config': config_name,
+                            'estimated_params_m': estimated_params,
+                            'seq_len': int(seq_len),
+                            'batch_size': int(batch_size),
+                            'model_type': 'optimized',
+                            'latency_ms': metrics['latency_ms'],
+                            'latency_median_ms': metrics['latency_median_ms'],
+                            'latency_std_ms': metrics['latency_std_ms'],
+                            'throughput': metrics['throughput'],
+                            'memory_mb': metrics['memory_mb'],
+                        }
+                        f.write(json.dumps(record) + '\n')
 
     print(f"Raw results saved to {jsonl_file}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description='TabFormer Optimized-Only Benchmark Sweep')
-    parser.add_argument('--output', type=str, default='bf16_optimized_results.json',
-                        help='Output JSON file for results')
+    parser = argparse.ArgumentParser(description='TabFormer Optimized Benchmark Sweep')
+    parser.add_argument('--output', type=str, default=None,
+                        help='Output JSON file for results (default: {precision}_optimized_results.json)')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device to run on (cuda or cpu)')
+    parser.add_argument('--precision', type=str, choices=['bf16', 'fp32'], default='bf16',
+                        help='Precision mode: bf16 or fp32 (default: bf16)')
     args = parser.parse_args()
 
     device = args.device
-    print(f"Running optimized-only benchmark sweep on {device}")
-    print("Using BF16 precision with torch.compile(fullgraph=True, mode='reduce-overhead')")
+    use_bf16 = (args.precision == 'bf16')
+
+    if args.output is None:
+        args.output = f'{args.precision}_optimized_results.json'
+
+    print(f"Running optimized benchmark sweep on {device}")
+    print(f"Precision: {args.precision.upper()}")
+    print("Using torch.compile(fullgraph=True, mode='reduce-overhead')")
+    print("Binary search for batch sizes up to 128")
     print("Per-config recompilation for CUDA graph capture enabled")
 
     # Get model configs
@@ -656,7 +720,7 @@ def main():
             seq_lengths,
             sla_targets_ms,
             device=device,
-            use_bf16=True,  # Always use BF16 for optimized
+            use_bf16=use_bf16,
         )
         all_results[config_name] = results
 
