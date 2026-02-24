@@ -577,6 +577,7 @@ def run_sweep(
     sla_targets_ms: List[float],
     device: str = 'cuda',
     use_bf16: bool = True,
+    seq_len_max_batch_sizes: Dict[int, int] = None,
 ) -> Dict:
     """Run SLA-based sweep for a model config (optimized only)."""
     print(f"\n{'='*80}")
@@ -598,6 +599,10 @@ def run_sweep(
         print(f"\n--- Sequence Length: {seq_len} ---")
         results['optimized'][seq_len] = {}
 
+        # Get max batch size for this sequence length
+        max_batch_size = seq_len_max_batch_sizes.get(seq_len, 128) if seq_len_max_batch_sizes else 128
+        print(f"  Max batch size for this sequence length: {max_batch_size}")
+
         try:
             # Optimized: With torch.compile fullgraph (binary search for each SLA)
             print(f"  Optimized (torch.compile + CUDA graphs, BF16):")
@@ -606,7 +611,7 @@ def run_sweep(
                 seq_len,
                 sla_targets_ms,
                 device=device,
-                max_batch_size=128,
+                max_batch_size=max_batch_size,
                 use_bf16=use_bf16,
             )
 
@@ -709,23 +714,50 @@ def main():
     # SLA targets
     sla_targets_ms = [5.0, 10.0, 15.0]
 
-    # Define sequence lengths per model (smaller models test longer sequences)
-    model_seq_lengths = {
-        '20M': [32, 64, 128, 256],
-        '120M': [32, 64],
-        '720M': [16],
+    # Test configurations
+    seq_lengths = [32, 64, 128, 256, 512, 1024]
+
+    # Base max batch size per model at seq_len=32
+    # Scale down by 2x for every 2x increase in sequence length
+    base_max_batch_sizes = {
+        '20M': 256,   # seq=32: 256, seq=64: 128, seq=128: 64, seq=256: 32, seq=512: 16, seq=1024: 8
+        '120M': 64,   # seq=32: 64, seq=64: 32, seq=128: 16, seq=256: 8, seq=512: 4, seq=1024: 2
+        '720M': 16,   # seq=32: 16, seq=64: 8, seq=128: 4, seq=256: 2, seq=512: 1, seq=1024: 1
     }
 
-    print(f"\nSequence length configuration:")
-    for model, seq_lens in model_seq_lengths.items():
-        print(f"  {model}: {seq_lens}")
+    def get_max_batch_size(config_name: str, seq_len: int) -> int:
+        """Calculate max batch size based on model and sequence length.
+        For every 2x increase in seq_len from base (32), divide max_batch by 2.
+        """
+        base_seq_len = 32
+        base_max_bs = base_max_batch_sizes[config_name]
+
+        # Calculate scaling factor: seq_len / base_seq_len
+        # e.g., seq=64 means 2x, so divide by 2
+        scaling_factor = seq_len // base_seq_len
+        max_bs = base_max_bs // scaling_factor
+
+        # Ensure at least batch_size=1
+        return max(1, max_bs)
+
+    print(f"\nMax batch size configuration (scales with sequence length):")
+    for model in ['20M', '120M', '720M']:
+        print(f"  {model} (base={base_max_batch_sizes[model]} at seq=32):")
+        for seq_len in seq_lengths:
+            max_bs = get_max_batch_size(model, seq_len)
+            print(f"    seq={seq_len}: max_bs={max_bs}")
     print()
 
     # Run sweep for each model
     all_results = {}
     for config_name in ['20M', '120M', '720M']:
         config = configs[config_name]
-        seq_lengths = model_seq_lengths[config_name]
+
+        # Create seq_len -> max_batch_size mapping
+        seq_len_max_batch_sizes = {
+            seq_len: get_max_batch_size(config_name, seq_len)
+            for seq_len in seq_lengths
+        }
 
         results = run_sweep(
             config_name,
@@ -733,6 +765,7 @@ def main():
             seq_lengths,
             sla_targets_ms,
             device=device,
+            seq_len_max_batch_sizes=seq_len_max_batch_sizes,
             use_bf16=use_bf16,
         )
         all_results[config_name] = results
