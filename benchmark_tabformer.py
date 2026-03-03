@@ -364,28 +364,33 @@ def benchmark_batch_size(
     seq_len: int,
     device: str = 'cuda',
     use_bf16: bool = True,
+    use_compile: bool = True,
 ) -> Dict:
     """
-    Benchmark a specific batch size with torch.compile.
+    Benchmark a specific batch size with optional torch.compile.
 
     Returns metrics dict or None if OOM.
     """
     try:
         # Create fresh model for each batch_size to enable CUDA graph capture
         model = TabFormerNative(config).to(device)
-        model = torch.compile(
-            model,
-            mode='reduce-overhead',
-            fullgraph=True
-        )
+        if use_compile:
+            model = torch.compile(
+                model,
+                mode='reduce-overhead',
+                fullgraph=True
+            )
         model.eval()
 
+        # Fewer warmup iters if not compiling
+        warmup = 20 if use_compile else 5
+        # Use default 50 iterations, can be overridden via global bench_iters if needed
         metrics = benchmark_model(
             model,
             batch_size,
             seq_len,
-            warmup_iters=20,  # Increased for CUDA graph capture
-            bench_iters=50,
+            warmup_iters=warmup,
+            bench_iters=50,  # Fixed at 50 for binary search
             device=device,
             use_bf16=use_bf16,
         )
@@ -411,6 +416,7 @@ def find_max_batch_size_for_sla(
     device: str = 'cuda',
     max_batch_size: int = 128,
     use_bf16: bool = True,
+    use_compile: bool = True,
 ) -> Dict:
     """
     Find maximum batch size for each SLA target using binary search.
@@ -425,7 +431,7 @@ def find_max_batch_size_for_sla(
 
     # Always measure batch_size=1
     print(f"    Measuring batch_size=1 (reference point)...")
-    metrics = benchmark_batch_size(config, 1, seq_len, device, use_bf16)
+    metrics = benchmark_batch_size(config, 1, seq_len, device, use_bf16, use_compile)
 
     if metrics is None:
         print(f"      OOM at batch_size=1!")
@@ -473,7 +479,7 @@ def find_max_batch_size_for_sla(
             # Check if already measured
             if mid not in all_measurements:
                 print(f"      Testing bs={mid}...")
-                metrics = benchmark_batch_size(config, mid, seq_len, device, use_bf16)
+                metrics = benchmark_batch_size(config, mid, seq_len, device, use_bf16, use_compile)
 
                 if metrics is None:
                     print(f"        OOM at bs={mid}, searching lower")
@@ -578,10 +584,12 @@ def run_sweep(
     device: str = 'cuda',
     use_bf16: bool = True,
     seq_len_max_batch_sizes: Dict[int, int] = None,
+    use_compile: bool = True,
 ) -> Dict:
-    """Run SLA-based sweep for a model config (optimized only)."""
+    """Run SLA-based sweep for a model config."""
     print(f"\n{'='*80}")
-    print(f"Running optimized sweep for {config_name} TabFormer")
+    mode_str = "with torch.compile" if use_compile else "without torch.compile (baseline)"
+    print(f"Running sweep for {config_name} TabFormer ({mode_str})")
     print(f"Estimated params: {config.estimated_params:.1f}M")
     print(f"{'='*80}")
 
@@ -604,8 +612,9 @@ def run_sweep(
         print(f"  Max batch size for this sequence length: {max_batch_size}")
 
         try:
-            # Optimized: With torch.compile fullgraph (binary search for each SLA)
-            print(f"  Optimized (torch.compile + CUDA graphs, BF16):")
+            # Run with or without torch.compile based on flag
+            mode_str = "with torch.compile + CUDA graphs" if use_compile else "baseline (no compile)"
+            print(f"  Running {mode_str}, BF16:")
             search_results = find_max_batch_size_for_sla(
                 config,
                 seq_len,
@@ -613,6 +622,7 @@ def run_sweep(
                 device=device,
                 max_batch_size=max_batch_size,
                 use_bf16=use_bf16,
+                use_compile=use_compile,
             )
 
             # Store results
@@ -687,35 +697,65 @@ def save_raw_results_jsonl(all_results: Dict, output_file: str):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='TabFormer Optimized Benchmark Sweep')
+    parser = argparse.ArgumentParser(description='TabFormer Benchmark Sweep')
     parser.add_argument('--output', type=str, default=None,
-                        help='Output JSON file for results (default: {precision}_optimized_results.json)')
+                        help='Output JSON file for results (default: {precision}_{mode}_results.json)')
     parser.add_argument('--device', type=str, default='cuda',
                         help='Device to run on (cuda or cpu)')
     parser.add_argument('--precision', type=str, choices=['bf16', 'fp32'], default='bf16',
                         help='Precision mode: bf16 or fp32 (default: bf16)')
+    parser.add_argument('--no_compile', action='store_true',
+                        help='Disable torch.compile (run baseline performance)')
+    parser.add_argument('--model', type=str, default=None, choices=['20M', '120M', '720M'],
+                        help='Run only specific model (default: all models)')
+    parser.add_argument('--seq_len', type=int, default=None,
+                        help='Run only specific sequence length (default: all)')
+    parser.add_argument('--sla', type=float, default=None,
+                        help='Run only specific SLA target in ms (default: 5, 10, 15)')
+    parser.add_argument('--batch_size', type=int, default=None,
+                        help='Run with fixed batch size (skip binary search)')
+    parser.add_argument('--bench_iters', type=int, default=50,
+                        help='Number of benchmark iterations (default: 50)')
     args = parser.parse_args()
 
     device = args.device
     use_bf16 = (args.precision == 'bf16')
+    use_compile = not args.no_compile
 
     if args.output is None:
-        args.output = f'{args.precision}_optimized_results.json'
+        mode = 'baseline' if args.no_compile else 'optimized'
+        args.output = f'{args.precision}_{mode}_results.json'
 
-    print(f"Running optimized benchmark sweep on {device}")
+    mode_str = "baseline (no compile)" if args.no_compile else "optimized (torch.compile)"
+    print(f"Running {mode_str} benchmark sweep on {device}")
     print(f"Precision: {args.precision.upper()}")
-    print("Using torch.compile(fullgraph=True, mode='reduce-overhead')")
+    if use_compile:
+        print("Using torch.compile(fullgraph=True, mode='reduce-overhead')")
+        print("Per-config recompilation for CUDA graph capture enabled")
+    else:
+        print("torch.compile DISABLED - running baseline performance")
     print("Binary search for batch sizes up to 128")
-    print("Per-config recompilation for CUDA graph capture enabled")
 
     # Get model configs
     configs = get_model_configs()
 
     # SLA targets
-    sla_targets_ms = [5.0, 10.0, 15.0]
+    if args.sla is not None:
+        sla_targets_ms = [args.sla]
+    else:
+        sla_targets_ms = [5.0, 10.0, 15.0]
 
     # Test configurations
-    seq_lengths = [32, 64, 128, 256, 512, 1024]
+    if args.seq_len is not None:
+        seq_lengths = [args.seq_len]
+    else:
+        seq_lengths = [32, 64, 128, 256, 512, 1024]
+
+    # Model selection
+    if args.model is not None:
+        model_names = [args.model]
+    else:
+        model_names = ['20M', '120M', '720M']
 
     # Base max batch size per model at seq_len=32
     # Scale down by 2x for every 2x increase in sequence length
@@ -740,8 +780,71 @@ def main():
         # Ensure at least batch_size=1
         return max(1, max_bs)
 
+    # Check if running with fixed batch size
+    if args.batch_size is not None:
+        print(f"\n{'='*80}")
+        print(f"Running with FIXED batch size: {args.batch_size}")
+        print(f"Skipping binary search")
+        print(f"{'='*80}\n")
+
+        # Run with fixed batch size
+        if len(model_names) != 1 or len(seq_lengths) != 1:
+            print("ERROR: --batch_size requires --model and --seq_len to be specified")
+            return
+
+        config_name = model_names[0]
+        seq_len = seq_lengths[0]
+        config = configs[config_name]
+
+        print(f"Benchmarking {config_name}, seq_len={seq_len}, batch_size={args.batch_size}")
+
+        # Create and benchmark model
+        metrics = benchmark_batch_size(
+            config,
+            args.batch_size,
+            seq_len,
+            device=device,
+            use_bf16=use_bf16,
+            use_compile=use_compile,
+        )
+
+        if metrics is None:
+            print("ERROR: OOM at specified batch size")
+            return
+
+        # Save results
+        result = {
+            'config': config_name,
+            'estimated_params_m': config.estimated_params,
+            'seq_len': seq_len,
+            'batch_size': args.batch_size,
+            'model_type': 'baseline' if args.no_compile else 'optimized',
+            'latency_ms': metrics['latency_ms'],
+            'latency_median_ms': metrics['latency_median_ms'],
+            'latency_std_ms': metrics['latency_std_ms'],
+            'throughput': metrics['throughput'],
+            'memory_mb': metrics['memory_mb'],
+        }
+
+        with open(args.output, 'w') as f:
+            json.dump(result, f, indent=2)
+
+        print(f"\n{'='*80}")
+        print(f"Results:")
+        print(f"  Latency: {metrics['latency_ms']:.2f}ms (median: {metrics['latency_median_ms']:.2f}ms, std: {metrics['latency_std_ms']:.2f}ms)")
+        print(f"  Throughput: {metrics['throughput']:.1f} seq/s")
+        print(f"  Memory: {metrics['memory_mb']:.1f} MB")
+        print(f"  Saved to: {args.output}")
+        print(f"{'='*80}")
+        return
+
+    # Normal binary search mode
+    print(f"\nConfiguration:")
+    print(f"  Models: {model_names}")
+    print(f"  Sequence lengths: {seq_lengths}")
+    print(f"  SLA targets: {sla_targets_ms}ms")
     print(f"\nMax batch size configuration (scales with sequence length):")
-    for model in ['20M', '120M', '720M']:
+    for model in model_names:
         print(f"  {model} (base={base_max_batch_sizes[model]} at seq=32):")
         for seq_len in seq_lengths:
             max_bs = get_max_batch_size(model, seq_len)
@@ -750,7 +853,7 @@ def main():
 
     # Run sweep for each model
     all_results = {}
-    for config_name in ['20M', '120M', '720M']:
+    for config_name in model_names:
         config = configs[config_name]
 
         # Create seq_len -> max_batch_size mapping
@@ -767,6 +870,7 @@ def main():
             device=device,
             seq_len_max_batch_sizes=seq_len_max_batch_sizes,
             use_bf16=use_bf16,
+            use_compile=use_compile,
         )
         all_results[config_name] = results
 
